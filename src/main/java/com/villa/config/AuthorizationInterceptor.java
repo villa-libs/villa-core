@@ -44,7 +44,6 @@ public class AuthorizationInterceptor implements HandlerInterceptor{
     @Value("${villa.whitelist:}")
     private String whitelist;
     private List<String> whitelists = new ArrayList<>();
-
     /** 是否开启黑名单 默认关闭 */
     @Value("${villa.blacklist.flag:false}")
     private boolean blacklistFlag;
