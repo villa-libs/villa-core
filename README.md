@@ -179,13 +179,13 @@ private String encryptURI;
 #配置信息
 spring:
   redis:
-    host: 3.24.212.93
+    host: xx.xx.xx.xx
     port: 6379
-    password: 'redis-ADMIN_2022'
+    password: 'password'
     database: 1
     #    cluster: #集群配置
     #      nodes: 
-    #        - 3.24.212.93:6379
+    #        - xx.xx.xx.xx:6379
     #      # 获取失败 最大重定向次数
     #      max-redirects: 3
     lettuce:
