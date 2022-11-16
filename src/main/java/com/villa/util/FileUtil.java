@@ -365,10 +365,10 @@ public class FileUtil {
         Graphics2D graphics = newImg.createGraphics();
         //把图片切成一个园
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        Ellipse2D.Double shape = new Ellipse2D.Double(border, border, width - border, width - border);
+        Ellipse2D.Double shape = new Ellipse2D.Double(border-2, border-2, width - border, width - border);
         //进行裁剪
         graphics.setClip(shape);
-        graphics.drawImage(img, border, border, width - border, width - border, null);
+        graphics.drawImage(img, border-2, border-2, width - border, width - border, null);
         graphics.dispose();
         //抗锯齿
         graphics = newImg.createGraphics();
@@ -376,14 +376,94 @@ public class FileUtil {
         //画笔大小
         Stroke s = new BasicStroke(border, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
         graphics.setStroke(s);
-        graphics.setColor(getColor(color));
+        graphics.setColor(FileUtil.getColor(color));
         //在圆形的边画一条边框线
-        graphics.drawOval(border / 2 + 1, border / 2 + 1, width - (border + 1), width - (border + 1));
+        graphics.drawOval(border / 2, border / 2, width - (border + 1), width - (border + 1));
         graphics.dispose();
         ImageIO.write(newImg, "PNG", File.createTempFile("temp", "png"));
         return newImg;
     }
+    /**
+     * 图片灰度图
+     */
+    public static BufferedImage grayImage(BufferedImage bufferedImage) {
+        int width = bufferedImage.getWidth();
+        int height = bufferedImage.getHeight();
+        BufferedImage grayBufferedImage = new BufferedImage(width, height, bufferedImage.getType());
+        for (int i = 0; i < bufferedImage.getWidth(); i++) {
+            for (int j = 0; j < bufferedImage.getHeight(); j++) {
+                final int color = bufferedImage.getRGB(i, j);
+                final int r = (color >> 16) & 0xff;
+                final int g = (color >> 8) & 0xff;
+                final int b = color & 0xff;
+                int gray = (int) (0.3 * r + 0.59 * g + 0.11 * b);
+                int newPixel = colorToRGB(255, gray, gray, gray);
+                grayBufferedImage.setRGB(i, j, newPixel);
+            }
+        }
+        return grayBufferedImage;
+    }
 
+    public static int colorToRGB(int alpha, int red, int green, int blue) {
+        int newPixel = 0;
+        newPixel += alpha;
+        newPixel = newPixel << 8;
+        newPixel += red;
+        newPixel = newPixel << 8;
+        newPixel += green;
+        newPixel = newPixel << 8;
+        newPixel += blue;
+        return newPixel;
+
+    }
+    //图片二值化
+    public static BufferedImage binaryImage(BufferedImage image, int threshold) {
+        int w = image.getWidth();
+        int h = image.getHeight();
+        int black = new Color(0, 0, 0).getRGB();
+        int white = new Color(255, 255, 255).getRGB();
+        BufferedImage bi = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_BINARY);
+        for (int x = 0; x < w; x++) {
+            for (int y = 0; y < h; y++) {
+                int rgb = image.getRGB(x, y);
+                int gray = rgb & 0xff;
+                if (gray < threshold) {
+                    bi.setRGB(x, y, black);
+                } else {
+                    bi.setRGB(x, y, white);
+                }
+            }
+        }
+        return bi;
+    }
+    //膨胀腐蚀
+    public static BufferedImage erode(BufferedImage image, int[] kernel) {
+        int black = new Color(0, 0, 0).getRGB();
+        int white = new Color(255, 255, 255).getRGB();
+        int w = image.getWidth();
+        int h = image.getHeight();
+        for (int x = 0; x < w; x++) {
+            for (int y = 0; y < h; y++) {
+                int min = 255;
+                for (int i = x; i < x + kernel[0]; i++) {
+                    for (int j = y; j < y + kernel[1]; j++) {
+                        if (i >= 0 && i < w && j >= 0 && j < h) {
+                            int value = image.getRGB(i, j) & 0xff;
+                            if (value < min) {
+                                min = value;
+                            }
+                        }
+                    }
+                }
+                if (min == 255) {
+                    image.setRGB(x, y, white);
+                } else {
+                    image.setRGB(x, y, black);
+                }
+            }
+        }
+        return image;
+    }
     /**
      * 获取文件后缀名
      */
