@@ -18,4 +18,18 @@ public class ExceptionUtil {
         }
         return e.getMessage();
     }
+
+    /**
+     * 获取异常的根本原因
+     */
+    public static Throwable getCause(Throwable e){
+        while (e != null) {
+            Throwable cause = e.getCause();
+            if (cause == null) {
+                return e;
+            }
+            e = cause;
+        }
+        return null;
+    }
 }

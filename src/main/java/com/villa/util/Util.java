@@ -29,6 +29,7 @@ public class Util {
 	public static final String assertionIsNumber = "assertionIsNumber";
 	public static final String assertionIsTrue = "assertionIsTrue";
 	public static final String assertionIsFalse = "assertionIsFalse";
+	public static final String assertionIsRangeLength = "assertionIsRangeLength";
 	/**
 	 * 断言是结果为false	为true则报错
 	 * 可被Validate注解使用
@@ -206,7 +207,11 @@ public class Util {
 			throw new RuntimeException(String.format(msg,params));
 		}
 	}
-
+	public static void assertionIsRangeLength(String str,int minLength,int maxLength,String msg,Object...params){
+		if(!isRangeLength(str,minLength,maxLength)){
+			throw new RuntimeException(String.format(msg,params));
+		}
+	}
 	/**
 	 * 获取客户端的IP地址的方法是：request.getRemoteAddr()，这种方法在大部分情况下都是有效的。
 	 * 但是在通过了Apache,Squid等反向代理软件就不能获取到客户端的真实IP地址了，如果通过了多级反向代理的话，
@@ -430,15 +435,17 @@ public class Util {
 	 * 最小长度为指定长度
 	 */
 	public static boolean isMinLength(String value,int length) {
-		return value.length()>=length;
+		return isNotNullOrEmpty(value)&&value.length()>=length;
 	}
 	/**
 	 * 最大长度为指定长度
 	 */
 	public static boolean isMaxLength(String value, int length) {
-		return value.length()<=length;
+		return isNotNullOrEmpty(value)&&value.length()<=length;
 	}
-
+	public static boolean isRangeLength(String value,int minLength,int maxLength){
+		return isNotNullOrEmpty(value)&&value.length()<=maxLength&&value.length()>=minLength;
+	}
 	public static boolean isNotNullOrEmpty(String str) {
 		return str != null && !"".equals(str.trim());
 	}

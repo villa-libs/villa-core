@@ -15,7 +15,7 @@
     </parent>
     <groupId>com.villa</groupId>
     <artifactId>core</artifactId>
-    <version>1.9.0</version>
+    <version>2.0.0</version>
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
@@ -76,11 +76,6 @@
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
             <version>0.1.55</version>
-        </dependency>
-        <dependency>
-            <groupId>com.villa</groupId>
-            <artifactId>log</artifactId>
-            <version>2.2.5</version>
         </dependency>
     </dependencies>
     <build>
