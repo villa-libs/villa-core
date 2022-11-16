@@ -1,5 +1,6 @@
 package com.villa.config;
 
+import com.villa.log.LogConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;

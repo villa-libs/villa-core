@@ -1,4 +1,4 @@
-package com.villa.config;
+package com.villa.log;
 
 import com.villa.log.Log;
 import com.villa.log.LogLevel;
