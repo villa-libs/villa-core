@@ -28,13 +28,14 @@ public class BodyFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
+        //上传请求 无需包装
+        if(Util.isNotNullOrEmpty(request.getContentType())&&request.getContentType().startsWith("multipart/")){
+            chain.doFilter(request, response);
+            return;
+        }
         //需要防串改或参数加密才包装请求对象
         if (request instanceof HttpServletRequest&&(paramDistort||encryptFlag)) {
             HttpServletRequest httpRequest = (HttpServletRequest) request;
-            if(Util.isNotNullOrEmpty(request.getContentType())&&request.getContentType().startsWith("multipart/")){
-                chain.doFilter(request, response);
-                return;
-            }
             if(Util.isNullOrEmpty(encryptURI)||(Util.isNotNullOrEmpty(encryptURI)&&httpRequest.getRequestURI().contains(encryptURI))){
                 //自定义请求对象包装器 为了ClassUtil.getParamStr()能获取到参数 并做参数防串改验证
                 BodyReaderHttpServletRequestWrapper requestWrapper = new BodyReaderHttpServletRequestWrapper(httpRequest);

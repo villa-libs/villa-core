@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
  * @bbs_url https://blog.csdn.net/u012169821
  */
 @ControllerAdvice
-public class MyRequestBodyAdvice implements RequestBodyAdvice {
+public class VillaRequestBodyAdvice implements RequestBodyAdvice {
     @Value("${villa.encrypt.flag:false}")
     private boolean encryptFlag;
     //是否开启指定uri签名

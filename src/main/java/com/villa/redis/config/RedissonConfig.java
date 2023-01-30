@@ -13,7 +13,7 @@ import java.util.List;
 
 @Configuration
 public class RedissonConfig {
-    @Autowired
+    @Autowired(required = false)
     private RedisConfiguration redisConfiguration;
 
     /**
@@ -22,18 +22,23 @@ public class RedissonConfig {
      */
     @Bean
     public Redisson redisson() {
+        String protocol = redisConfiguration.isSsl()?"rediss":"redis";
+        System.out.println("使用协议："+protocol);
         //单机版
         if(Util.isNotNullOrEmpty(redisConfiguration.getHost())){
             Config config = new Config();
-            String redisUrl = String.format("redis://%s:%s", redisConfiguration.getHost(), redisConfiguration.getPort());
-            config.useSingleServer().setAddress(redisUrl).setPassword(redisConfiguration.getPassword());
+            String redisUrl = String.format(protocol+"://%s:%s", redisConfiguration.getHost(), redisConfiguration.getPort());
+            config.useSingleServer().setAddress(redisUrl);
+            if(Util.isNotNullOrEmpty(redisConfiguration.getPassword())){
+                config.useSingleServer().setPassword(redisConfiguration.getPassword());
+            }
             config.useSingleServer().setDatabase(redisConfiguration.getDatabase());
             return (Redisson)Redisson.create(config);
         }
         //集群版
         List<String> clusterNodes = new ArrayList<>();
         for (int i = 0; i < redisConfiguration.getCluster().getNodes().size(); i++) {
-            clusterNodes.add("redis://" + redisConfiguration.getCluster().getNodes().get(i));
+            clusterNodes.add(protocol+"://" + redisConfiguration.getCluster().getNodes().get(i));
         }
         Config config = new Config();
         ClusterServersConfig clusterServersConfig = config.useClusterServers()

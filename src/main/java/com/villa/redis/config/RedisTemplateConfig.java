@@ -1,19 +1,33 @@
 package com.villa.redis.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 public class RedisTemplateConfig {
+    @Autowired(required = false)
+    private RedisConfiguration redisConfiguration;
     @Bean
-    public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    public RedisTemplate<Object, Object> redisTemplate() {
+        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
+        redisStandaloneConfiguration.setDatabase(redisConfiguration.getDatabase());
+        redisStandaloneConfiguration.setHostName(redisConfiguration.getHost());
+        redisStandaloneConfiguration.setPort(redisConfiguration.getPort());
+        redisStandaloneConfiguration.setPassword(redisConfiguration.getPassword());
+        //如果使用了SSL协议 使用不同配置
+        LettuceClientConfiguration lettuceClientConfiguration =
+                redisConfiguration.isSsl()?LettuceClientConfiguration.builder().useSsl().build():LettuceClientConfiguration.builder().build();
+        LettuceConnectionFactory factory = new LettuceConnectionFactory(redisStandaloneConfiguration, lettuceClientConfiguration);
+        factory.afterPropertiesSet(); // 必须初始化实例
         RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(redisConnectionFactory);
-
+        redisTemplate.setConnectionFactory(factory);
         // 自定义的string序列化器和fastjson序列化器
         StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
 

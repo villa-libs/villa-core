@@ -11,4 +11,6 @@ public interface ErrCodeDTO {
     String ox00002 = "0x00002";
     /** 系统异常 */
     String ox99999 = "0x99999";
+    /** 上传失败 */
+    String ox99998 = "0x99998";
 }

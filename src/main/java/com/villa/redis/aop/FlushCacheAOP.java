@@ -60,17 +60,17 @@ public class FlushCacheAOP {
             //从缓存中取 注解集
             Point[] points = pointCache.get(method);
             for (Point p : points) {
-                //先从缓存拿
-                String pointClassName = clzCache.get(p.clz());
-                if(Util.isNullOrEmpty(pointClassName)){
-                    //没有类型 就是当前方法的所属类
-                    if(p.clz() == NullType.class){
-                        pointClassName = className;
-                    }else{
-                        pointClassName = p.clz().getName();
+                //此point 记录了clz
+                if(p.clz() != NullType.class){
+                    //从缓存找
+                    className = clzCache.get(p.clz());
+                    //没找到
+                    if(Util.isNullOrEmpty(className)){
+                        className = p.clz().getName();
+                        clzCache.put(p.clz(),className);
                     }
                 }
-                String redisKey = "cache_"+pointClassName+"."+p.value()+"_";
+                String redisKey = "cache_"+className+"."+p.value()+"_*";
                 Set<String> keys = redisClient.keys(redisKey);
                 for (String key : keys) {
                     redisClient.del(key);

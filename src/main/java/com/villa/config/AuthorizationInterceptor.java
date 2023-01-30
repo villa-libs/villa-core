@@ -63,7 +63,6 @@ public class AuthorizationInterceptor implements HandlerInterceptor{
         if(!validateIp(ip)){
             return false;
         }
-
         if(request.getMethod().equals("OPTIONS")){
             return true;
         }

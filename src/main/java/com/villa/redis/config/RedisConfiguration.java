@@ -8,14 +8,13 @@ import java.util.List;
 @Component
 @ConfigurationProperties(prefix = "spring.redis")
 public class RedisConfiguration {
-
     private Integer timeout;
     private Integer database;
     private Integer port;
     private String host;
     private String password;
     private cluster cluster;
-
+    private boolean ssl;
     public static class cluster {
         private List<String> nodes;
 
@@ -66,6 +65,14 @@ public class RedisConfiguration {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean isSsl() {
+        return ssl;
+    }
+
+    public void setSsl(boolean ssl) {
+        this.ssl = ssl;
     }
 
     public RedisConfiguration.cluster getCluster() {

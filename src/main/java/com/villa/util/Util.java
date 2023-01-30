@@ -236,10 +236,11 @@ public class Util {
 		// 对于通过多个代理的情况， 第一个IP为客户端真实IP,多个IP按照','分割 "***.***.***.***".length() = 15
 		int ipMaxLength = 15;
 		if (ip != null && ip.length() > ipMaxLength) {
-			try{
+			if(ip.indexOf(",")!=-1){
 				return ip.substring(0, ip.indexOf(","));
-			}catch (Exception e){
-				Log.err("【core组件】获取IP失败,ip值：%s  异常信息:%s",ip,e.getMessage());
+			}
+			if(ip.indexOf(":")!=-1){
+				return ip;
 			}
 		}
 		return ip;
@@ -480,6 +481,7 @@ public class Util {
 	 * 验证是否是身份证号码格式
 	 */
 	public static boolean isCard(String IDStr) {
+		if(isNullOrEmpty(IDStr))return false;
 		String Ai = "";
 		// 判断号码的长度 15位或18位
 		if (IDStr.length() != 15 && IDStr.length() != 18) {
@@ -570,6 +572,7 @@ public class Util {
 	 * 验证是否是链接
 	 */
 	public static boolean isUrl(String url) {
+		if(isNullOrEmpty(url))return false;
 		String regex = "^([hH][tT]{2}[pP]:/*|[hH][tT]{2}[pP][sS]:/*|[fF][tT][pP]:/*)(([A-Za-z0-9-~]+).)+([A-Za-z0-9-~\\/])+(\\?{0,1}(([A-Za-z0-9-~]+\\={0,1})([A-Za-z0-9-~]*)\\&{0,1})*)$";
 		Pattern pattern = Pattern.compile(regex);
 		if (pattern.matcher(url).matches()) {
@@ -582,6 +585,9 @@ public class Util {
 	 * 验证字符串是否包含大写和小写
 	 */
 	public static boolean isUpLow(String str) {
+		if(isNullOrEmpty(str)){
+			return false;
+		}
 		char[] cs = str.toCharArray();
 		//默认没有小写字母
 		boolean low = false; 

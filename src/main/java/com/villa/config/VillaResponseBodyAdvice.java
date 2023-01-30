@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest;
  * @bbs_url https://blog.csdn.net/u012169821
  */
 @ControllerAdvice
-public class MyResponseBodyAdvice implements ResponseBodyAdvice<ResultDTO> {
+public class VillaResponseBodyAdvice implements ResponseBodyAdvice<ResultDTO> {
     @Value("${villa.encrypt.flag:false}")
     private boolean encryptFlag;
     //是否开启指定uri签名

@@ -25,8 +25,7 @@ public class WriteErrHandler {
         }
         try {
             fileWriter.append(err);
-            fileWriter.append(java.security.AccessController.doPrivileged(
-                    new sun.security.action.GetPropertyAction("line.separator")));
+            fileWriter.append(System.lineSeparator());
             fileWriter.flush();
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());
