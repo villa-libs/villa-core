@@ -31,6 +31,10 @@ public class FlushCacheAOP {
     /**
      * 清除缓存
      */
+    @After("execution(public * com..*.repository..*.*(..))")
+    public void doAfter1(JoinPoint point) {
+        doAfter(point);
+    }
     @After("execution(public * com..*.service..*.*(..))")
     public void doAfter(JoinPoint point) {
         try{

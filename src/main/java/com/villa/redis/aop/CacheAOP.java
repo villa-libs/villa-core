@@ -34,7 +34,10 @@ public class CacheAOP {
      * 存取缓存
      */
     @Around("execution(public * com..*.service..*.*(..))")
-    public Object Around(ProceedingJoinPoint point){
+    public Object Around1(ProceedingJoinPoint point){return handler(point);}
+    @Around("execution(public * com..*.repository..*.*(..))")
+    public Object Around2(ProceedingJoinPoint point){return handler(point);}
+    public Object handler(ProceedingJoinPoint point){
         try{
             if (Util.isNull(redisClient)) {
                 return point.proceed();

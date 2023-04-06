@@ -5,6 +5,7 @@ import org.redisson.Redisson;
 import org.redisson.config.ClusterServersConfig;
 import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,8 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
+@EnableConfigurationProperties(RedisConfiguration.class)
 public class RedissonConfig {
-    @Autowired(required = false)
+    @Autowired
     private RedisConfiguration redisConfiguration;
 
     /**
@@ -23,7 +25,6 @@ public class RedissonConfig {
     @Bean
     public Redisson redisson() {
         String protocol = redisConfiguration.isSsl()?"rediss":"redis";
-        System.out.println("使用协议："+protocol);
         //单机版
         if(Util.isNotNullOrEmpty(redisConfiguration.getHost())){
             Config config = new Config();

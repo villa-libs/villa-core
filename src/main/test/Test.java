@@ -1,7 +1,4 @@
-import com.villa.event.aop.EventAOP;
-
-import java.lang.reflect.Method;
-import java.util.Arrays;
+import com.villa.util.EncryptionUtil;
 
 /**
  * @作者 微笑い一刀
@@ -9,14 +6,6 @@ import java.util.Arrays;
  */
 public class Test {
     public static void main(String[] args) {
-        Method[] methods = new EventAOP().getClass().getDeclaredMethods();
-        for (Method method : methods) {
-            Class<?>[] types = method.getParameterTypes();
-            StringBuilder sb = new StringBuilder();
-            for (Class<?> type : types) {
-                sb.append(type.getName());
-            }
-            System.out.println(sb);
-        }
+        System.out.println(EncryptionUtil.encrypt_HMAC_SHA256("111026","nihaoma"));
     }
 }

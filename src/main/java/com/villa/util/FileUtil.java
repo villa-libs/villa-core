@@ -98,11 +98,38 @@ public class FileUtil {
     }
 
     /**
+     * 下载线上资源返回字节数组
+     * @param fileURL 下载地址
+     */
+    public static byte[] downloadFileToBytes(String fileURL) throws IOException {
+        URL url = new URL(fileURL);
+        //链接网络地址
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        InputStream in = connection.getInputStream();
+        byte[] data = new byte[in.available()];
+        in.read(data);
+        in.close();
+        return data;
+    }
+    /**
+     * 下载线上资源 返回流
+     * @param fileURL 下载地址
+     */
+    public static InputStream downloadFileToStream(String fileURL) throws IOException {
+        URL url = new URL(fileURL);
+        //链接网络地址
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        return connection.getInputStream();
+    }
+    /**
      * 下载线上资源
      *
      * @param fileURL 下载地址
+     * @param desc 文件存放目标地址(可以是临时文件)
+     * @param fileName 文件存放的文件名
+     * @param header 访问时携带的请求头
      */
-    public static ResultDTO downloadFile(String fileURL, String desc, String fileName, Map<String, String> header) throws IOException {
+    public static ResultDTO downloadFileToFile(String fileURL, String desc, String fileName, Map<String, String> header) throws IOException {
         //创建文件目录
         File file = new File(desc);
         if (!file.exists()) {
@@ -473,5 +500,16 @@ public class FileUtil {
             return fileName.substring(index + 1);
         }
         return "";
+    }
+
+    /**
+     * 从一个完整的URL中获取最后一个/后的文件名
+     */
+    public static String getFileNameByUrl(String url){
+        int lastIndex = url.lastIndexOf("/");
+        if(lastIndex !=-1){
+            return url.substring(lastIndex+1);
+        }
+        return url;
     }
 }

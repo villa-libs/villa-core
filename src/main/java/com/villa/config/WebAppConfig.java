@@ -5,11 +5,13 @@ import com.villa.util.SpringContextUtil;
 import com.villa.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+@EnableConfigurationProperties(RedisConfiguration.class)
 @Configuration
 public class WebAppConfig implements WebMvcConfigurer {
     //是否开启参数防串改配置

@@ -15,6 +15,16 @@ public class EventListenerDTO {
     private Method eventListenerHandler;
     //是否异步 默认false
     private boolean async;
+    //当前方法的参数类型列表
+    private Class<?>[] types;
+
+    public Class<?>[] getTypes() {
+        return types;
+    }
+
+    public void setTypes(Class<?>[] types) {
+        this.types = types;
+    }
 
     public boolean isAsync() {
         return async;

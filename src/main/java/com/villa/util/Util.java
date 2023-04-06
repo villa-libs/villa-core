@@ -855,4 +855,20 @@ public class Util {
 	public static String getProjectRootPath(){
 		return System.getProperty("user.dir");
 	}
+
+	/**
+	 * 获取服务器主机地址加上下文
+	 */
+	public static String getHost(HttpServletRequest request){
+		String contextPath = request.getContextPath();
+		return  request.getScheme() + "://" + request.getServerName()+(isNotNullOrEmpty(contextPath)?"/"+contextPath:"");
+	}
+
+	/**
+	 * 获取服务器域名
+	 */
+	public static String getDomain(HttpServletRequest request){
+		String contextPath = request.getContextPath();
+		return  request.getScheme() + "://" + request.getServerName();
+	}
 }

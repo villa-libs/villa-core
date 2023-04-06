@@ -1,6 +1,7 @@
 package com.villa.redis.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
@@ -11,8 +12,9 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
+@EnableConfigurationProperties(RedisConfiguration.class)
 public class RedisTemplateConfig {
-    @Autowired(required = false)
+    @Autowired
     private RedisConfiguration redisConfiguration;
     @Bean
     public RedisTemplate<Object, Object> redisTemplate() {
@@ -30,7 +32,6 @@ public class RedisTemplateConfig {
         redisTemplate.setConnectionFactory(factory);
         // 自定义的string序列化器和fastjson序列化器
         StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
-
         // jackson 序列化器
         GenericJackson2JsonRedisSerializer jsonRedisSerializer = new GenericJackson2JsonRedisSerializer();
         // kv 序列化
