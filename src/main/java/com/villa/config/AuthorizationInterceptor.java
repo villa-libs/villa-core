@@ -91,16 +91,15 @@ public class AuthorizationInterceptor implements HandlerInterceptor{
         }
         //需要sign
         String timestamp = request.getHeader("timestamp");
-        if(Util.isNullOrEmpty(timestamp)||!Util.isNumeric(timestamp)){
-            Log.err("【签名失败】timestamp为空或不是数字");
-            putErr(response,ResultDTO.put401(ErrCodeDTO.ox00001));
-            return false;
-        }
         long curTime = Long.parseLong(timestamp);
         if(noSign==null){
+            if(Util.isNullOrEmpty(timestamp)||!Util.isNumeric(timestamp)){
+                Log.err("【签名失败】timestamp为空或不是数字");
+                putErr(response,ResultDTO.put401(ErrCodeDTO.ox00001));
+                return false;
+            }
             //验证签名  签名必须存在于header中
             String sign = request.getHeader("sign");
-
             //获取当前token上次携带的请求时间
             if(!validateSign(sign,curTime,request)){
                 putErr(response,ResultDTO.put401(ErrCodeDTO.ox00001));

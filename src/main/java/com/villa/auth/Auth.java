@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.net.URLDecoder;
+import java.util.Base64;
 import java.util.HashMap;
 
 /**
@@ -104,7 +105,7 @@ public class Auth {
         if(Util.isNotNullOrEmpty(secret)&&token.indexOf(".")!=-1){
             //.点 需要转义
             String[] infos = token.split("\\.");
-            String data = URLDecoder.decode(infos[0]);
+            String data = new String(Base64.getUrlDecoder().decode(infos[0]));
             String sign = EncryptionUtil.encrypt_HMAC_SHA256(secret, data);
             //判断签名
             if(!sign.equals(infos[1])){

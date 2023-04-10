@@ -6,6 +6,8 @@ import com.villa.util.Util;
 
 import java.io.Serializable;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -50,8 +52,7 @@ public class AuthModel implements Serializable {
         //如果不是单点 往自定义属性集合中添加uuid用作区别
         String attrsJson = JSON.toJSONString(attrs);
         if(Util.isNotNullOrEmpty(auth.getSecret())){
-            String encode = URLEncoder.encode(attrsJson);
-            return encode+"."+EncryptionUtil.encrypt_HMAC_SHA256(auth.getSecret(),attrsJson);
+            return Base64.getUrlEncoder().encodeToString(attrsJson.getBytes(StandardCharsets.UTF_8))+"."+EncryptionUtil.encrypt_HMAC_SHA256(auth.getSecret(),attrsJson);
         }
         putAttr("auth_prototype_id", UUID.randomUUID().toString());
         //单点登录时 使用自定义属性(未设置UUID的) 查看是否存在token,存在就进行删除
