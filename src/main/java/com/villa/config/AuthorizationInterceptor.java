@@ -5,10 +5,10 @@ import com.villa.auth.Auth;
 import com.villa.auth.AuthModel;
 import com.villa.auth.annotation.NoLogin;
 import com.villa.auth.annotation.NoSign;
-import com.villa.redis.RedisClient;
 import com.villa.dto.ErrCodeDTO;
 import com.villa.dto.ResultDTO;
 import com.villa.log.Log;
+import com.villa.redis.RedisClient;
 import com.villa.util.ClassUtil;
 import com.villa.util.EncryptionUtil;
 import com.villa.util.Util;
@@ -90,10 +90,10 @@ public class AuthorizationInterceptor implements HandlerInterceptor{
             return true;
         }
         //需要sign
-        String timestamp = request.getHeader("timestamp");
-        long curTime = Long.parseLong(timestamp);
         if(noSign==null){
-            if(Util.isNullOrEmpty(timestamp)||!Util.isNumeric(timestamp)){
+            String timestampStr = request.getHeader("timestamp");
+            long timestamp = Long.parseLong(timestampStr);
+            if(Util.isNullOrEmpty(timestampStr)||!Util.isNumeric(timestampStr)){
                 Log.err("【签名失败】timestamp为空或不是数字");
                 putErr(response,ResultDTO.put401(ErrCodeDTO.ox00001));
                 return false;
@@ -101,14 +101,14 @@ public class AuthorizationInterceptor implements HandlerInterceptor{
             //验证签名  签名必须存在于header中
             String sign = request.getHeader("sign");
             //获取当前token上次携带的请求时间
-            if(!validateSign(sign,curTime,request)){
+            if(!validateSign(sign,timestamp,request)){
                 putErr(response,ResultDTO.put401(ErrCodeDTO.ox00001));
                 return false;
             }
         }
 
         //验证token 启用了登录拦截 才去验证
-        if(noLogin==null&&!auth.validate(token,curTime)){
+        if(noLogin==null&&!auth.validate(token)){
             putErr(response, ResultDTO.put401(ErrCodeDTO.ox00002));
             return false;
         }
@@ -168,15 +168,15 @@ public class AuthorizationInterceptor implements HandlerInterceptor{
     /**
      * 验证签名是否正确
      */
-    public boolean validateSign(String sign, long curTime, HttpServletRequest request){
+    public boolean validateSign(String sign, long timestamp, HttpServletRequest request){
         if(Util.isNullOrEmpty(sign)){
             Log.err("【签名失败】sign为空");
             return false;
         }
         //请求有效性 1分钟内 如果当前签名是超出了1分钟有效性范围的 则拦截
         long sysTime = System.currentTimeMillis();
-        if(Math.abs(sysTime-curTime)>=1000*signDelay){
-            Log.err("【签名失败】timestamp和系统时间超出了[%s]秒，签名使用时间戳：%s,当前系统时间戳：%s",signDelay,curTime,sysTime);
+        if(Math.abs(sysTime-timestamp)>=1000*signDelay){
+            Log.err("【签名失败】timestamp和系统时间超出了[%s]秒，签名使用时间戳：%s,当前系统时间戳：%s",signDelay,timestamp,sysTime);
             return false;
         }
         //如果开启参数加密 则获取一次参数
@@ -184,7 +184,7 @@ public class AuthorizationInterceptor implements HandlerInterceptor{
             //不指定uri加密 或指定uri加密并且当前访问的uri命中指定uri
             if(Util.isNullOrEmpty(encryptURI)||(Util.isNotNullOrEmpty(encryptURI)&&request.getRequestURI().contains(encryptURI))){
                 String paramStr = ClassUtil.getParamStr(request);
-                String sysSign = EncryptionUtil.encrypt_MD5(EncryptionUtil.getSign(curTime) + (Util.isNotNullOrEmpty(paramStr) ? paramStr : "")).toUpperCase(Locale.ROOT);
+                String sysSign = EncryptionUtil.encrypt_MD5(EncryptionUtil.getSign(timestamp) + (Util.isNotNullOrEmpty(paramStr) ? paramStr : "")).toUpperCase(Locale.ROOT);
                 boolean signEq = sysSign.equals(sign.toUpperCase());
                 if(!signEq){
                     Log.err("【签名失败】系统签名=>"+sysSign+"\t\t 接收到的签名===>"+sign.toUpperCase()+"，当前系统开启了加密访问，请确认加密规则是否正确");
@@ -192,7 +192,7 @@ public class AuthorizationInterceptor implements HandlerInterceptor{
                 return signEq;
             }
         }
-        return EncryptionUtil.getSign(curTime).equals(sign.toUpperCase());
+        return EncryptionUtil.getSign(timestamp).equals(sign.toUpperCase());
     }
     private void putErr(HttpServletResponse response, ResultDTO dto){
         PrintWriter writer = null;

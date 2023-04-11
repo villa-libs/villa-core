@@ -65,7 +65,7 @@ public class Auth {
     /**
      * 验证此token的有效性
      * */
-    public boolean validate(String token,long curTime){
+    public boolean validate(String token){
         if (Util.isNullOrEmpty(token)){
             Log.err("【登录失败】token为空");
             return false;
@@ -75,6 +75,7 @@ public class Auth {
             Log.err("【登录失败】缓存中根据token获取授权模型为null");
             return false;
         }
+        long curTime = System.currentTimeMillis();
         //JWT
         if(Util.isNotNullOrEmpty(secret)){
             //判断时间
@@ -103,17 +104,22 @@ public class Auth {
             return null;
         }
         if(Util.isNotNullOrEmpty(secret)&&token.indexOf(".")!=-1){
-            //.点 需要转义
-            String[] infos = token.split("\\.");
-            String data = new String(Base64.getUrlDecoder().decode(infos[0]));
-            String sign = EncryptionUtil.encrypt_HMAC_SHA256(secret, data);
-            //判断签名
-            if(!sign.equals(infos[1])){
+            try{
+                //.点 需要转义
+                String[] infos = token.split("\\.");
+                String data = new String(Base64.getUrlDecoder().decode(infos[0]));
+                String sign = EncryptionUtil.encrypt_HMAC_SHA256(secret, data);
+                //判断签名
+                if(!sign.equals(infos[1])){
+                    return null;
+                }
+                AuthModel authModel = new AuthModel();
+                authModel.setAttrs(JSON.parseObject(data, HashMap.class));
+                return authModel;
+            }catch (Exception e){
+                e.printStackTrace();
                 return null;
             }
-            AuthModel authModel = new AuthModel();
-            authModel.setAttrs(JSON.parseObject(data, HashMap.class));
-            return authModel;
         }
         return redisClient.get(token);
     }
@@ -126,7 +132,9 @@ public class Auth {
         }
         redisClient.set(token,authModel,newDelay);
     }
-
+    public void logout(String token){
+        redisClient.del(token);
+    }
     public String getSecret() {
         return secret;
     }

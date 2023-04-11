@@ -14,13 +14,16 @@ public class SystemUtil {
         return loginAttrs==null?new HashMap<>():loginAttrs;
     }
     public static String getAttrByNameToString(HttpServletRequest request,String attrName){
-        return getLoginAttrs(request).get(attrName).toString();
+        Object attr = getLoginAttrs(request).get(attrName);
+        return attr==null?null:attr.toString();
     }
     public static Long getAttrByNameToLong(HttpServletRequest request,String attrName){
-        return Long.valueOf(getAttrByNameToString(request,attrName));
+        String attr = getAttrByNameToString(request, attrName);
+        return Util.isNullOrEmpty(attr)?null:Long.valueOf(attr);
     }
     public static Integer getAttrByNameToInt(HttpServletRequest request,String attrName){
-        return Integer.valueOf(getAttrByNameToString(request,attrName));
+        String attr = getAttrByNameToString(request, attrName);
+        return Util.isNullOrEmpty(attr)?null:Integer.valueOf(attr);
     }
     /**
      * 获取登录token
