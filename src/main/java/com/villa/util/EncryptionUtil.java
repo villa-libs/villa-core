@@ -84,7 +84,7 @@ public class EncryptionUtil {
     /**
      * SHA1加密
      * 使用SHA1算法对字符串进行加密
-     *
+     * 自己的系统不推荐使用此算法  建议使用sha256及sha512 更安全
      * @param data 要加密的数据
      * @return
      */

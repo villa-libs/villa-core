@@ -16,20 +16,36 @@ import java.util.regex.Pattern;
  * 所有断言 为false就会报错
  */
 public class Util {
-	public static final String assertionIsIdCard = "assertionIsIdCard";
-	public static final String assertionIsNotNullOrEmpty = "assertionIsNotNullOrEmpty";
-	public static final String assertionIsNotNull = "assertionIsNotNull";
-	public static final String assertionIsNull = "assertionIsNull";
-	public static final String assertionIsStrEq = "assertionIsStrEq";
-	public static final String assertionIsNumberEq = "assertionIsNumberEq";
-	public static final String assertionIsNumberNotEq = "assertionIsNumberNotEq";
-	public static final String assertionIsPhone = "assertionIsPhone";
-	public static final String assertionIsEmail = "assertionIsEmail";
-	public static final String assertionIsUrl = "assertionIsUrl";
-	public static final String assertionIsNumber = "assertionIsNumber";
 	public static final String assertionIsTrue = "assertionIsTrue";
 	public static final String assertionIsFalse = "assertionIsFalse";
+	public static final String assertionIsNumber = "assertionIsNumber";
+	public static final String assertionIsUrl = "assertionIsUrl";
+	public static final String assertionIsEmail = "assertionIsEmail";
+	public static final String assertionIsPhone = "assertionIsPhone";
+	public static final String assertionIsNumberNotEq = "assertionIsNumberNotEq";
+	public static final String assertionIsNumberEq = "assertionIsNumberEq";
+	public static final String assertionIsStrEq = "assertionIsStrEq";
+	public static final String assertionIsStrNotEq = "assertionIsStrNotEq";
+	public static final String assertionIsNull = "assertionIsNull";
+	public static final String assertionIsNotNull = "assertionIsNotNull";
+	public static final String assertionIsNotNullOrEmpty = "assertionIsNotNullOrEmpty";
+	public static final String assertionIsIdCard = "assertionIsIdCard";
+	public static final String assertionIsEmptyCollection = "assertionIsEmptyCollection";
+	public static final String assertionIsNotEmptyCollection = "assertionIsNotEmptyCollection";
+	public static final String assertionNoException = "assertionNoException";
 	public static final String assertionIsRangeLength = "assertionIsRangeLength";
+	public static final String assertionIsCarNum = "assertionIsCarNum";
+	public static final String assertionIsOnlyStrAndNum = "assertionIsOnlyStrAndNum";
+	public static final String assertionIsStrAndNum = "assertionIsStrAndNum";
+	public static final String assertionIsUpLow = "assertionIsUpLow";
+	public static final String assertionIsUpLowNum = "assertionIsUpLowNum";
+	public static final String assertionIsUpLowNumChar = "assertionIsUpLowNumChar";
+	public static final String assertionIsUpOneAndLowNum = "assertionIsUpOneAndLowNum";
+	public static final String assertionIsUpOneAndLowNumChar = "assertionIsUpOneAndLowNumChar";
+	public static final String assertionIsGtZero = "assertionIsGtZero";
+	public static final String assertionIsMax = "assertionIsMax";
+	public static final String assertionIsMin = "assertionIsMin";
+
 	/**
 	 * 断言是结果为false	为true则报错
 	 * 可被Validate注解使用
@@ -129,6 +145,15 @@ public class Util {
 			throw new RuntimeException(String.format(msg,params));
 		}
 	}
+
+	/**
+	 * 断言两个字符串不能相等 一般用在修改密码时 新旧不密码不能相同
+	 */
+	public static void assertionIsStrNotEq(String str1,String str2,String msg,Object...params){
+		if(isNullOrEmpty(str1)||isNullOrEmpty(str2)||str1.equals(str2)){
+			throw new RuntimeException(String.format(msg,params));
+		}
+	}
 	/**
 	 * 断言为null
 	 * 可被Validate注解使用
@@ -161,7 +186,7 @@ public class Util {
 	 * 可被Validate注解使用
 	 */
 	public static void assertionIsIdCard(String idCard,String msg,Object...params){
-		if(idCard ==null || !isCard(idCard)){
+		if(!isCard(idCard)){
 			throw new RuntimeException(String.format(msg,params));
 		}
 	}
@@ -212,6 +237,97 @@ public class Util {
 			throw new RuntimeException(String.format(msg,params));
 		}
 	}
+
+	/**
+	 * 断言字符串为车牌号码
+	 */
+	public static void assertionIsCarNum(String str,String msg,Object...params){
+		if(!isCarNum(str)){
+			throw new RuntimeException(String.format(msg,params));
+		}
+	}
+
+	/**
+	 * 断言字符串仅能为字母+数字 不能有特殊符号
+	 */
+	public static void assertionIsOnlyStrAndNum(String str,String msg,Object...params){
+		if(!isOnlyStrAndNum(str)){
+			throw new RuntimeException(String.format(msg,params));
+		}
+	}
+	/**
+	 * 断言字符串包含字母+数字
+	 */
+	public static void assertionIsStrAndNum(String str,String msg,Object...params){
+		if(!isStrAndNum(str)){
+			throw new RuntimeException(String.format(msg,params));
+		}
+	}
+	/**
+	 * 断言字符串有且必有大写小写字母
+	 */
+	public static void assertionIsUpLow(String str,String msg,Object...params){
+		if(!isUpLow(str)){
+			throw new RuntimeException(String.format(msg,params));
+		}
+	}
+	/**
+	 * 断言字符串有且必有大写小写字母+数字
+	 */
+	public static void assertionIsUpLowNum(String str,String msg,Object...params){
+		if(!isUpLowNum(str)){
+			throw new RuntimeException(String.format(msg,params));
+		}
+	}
+	/**
+	 * 断言字符串有且必有大写小写字母+数字+特殊字符
+	 */
+	public static void assertionIsUpLowNumChar(String str,String msg,Object...params){
+		if(!isUpLowNumChar(str)){
+			throw new RuntimeException(String.format(msg,params));
+		}
+	}
+	/**
+	 * 断言字符串有且必有大写小写字母+数字 且首字母大写
+	 */
+	public static void assertionIsUpOneAndLowNum(String str,String msg,Object...params){
+		if(!isUpOneAndLowNum(str)){
+			throw new RuntimeException(String.format(msg,params));
+		}
+	}
+	/**
+	 * 断言字符串有且必有大写小写字母+数字+特殊字符 且首字母大写
+	 */
+	public static void assertionIsUpOneAndLowNumChar(String str,String msg,Object...params){
+		if(!isUpOneAndLowNumChar(str)){
+			throw new RuntimeException(String.format(msg,params));
+		}
+	}
+	/**
+	 * 断言值大于0 如果不是BigDecimal/BigInteger/Integer/Double/Float/Byte 直接断言失败
+	 */
+	public static void assertionIsGtZero(Object value,String msg,Object...params){
+		if(!isGtZero(value)){
+			throw new RuntimeException(String.format(msg,params));
+		}
+	}
+	/**
+	 * 断言值最大为值 小于等于max
+	 */
+	public static void assertionIsMax(Object value,Object max,String msg,Object...params){
+		if(!isMax(value,max)){
+			throw new RuntimeException(String.format(msg,params));
+		}
+	}
+	/**
+	 * 断言值最大为值 大于等于min
+	 */
+	public static void assertionIsMin(Object value,Object min,String msg,Object...params){
+		if(!isMin(value,min)){
+			throw new RuntimeException(String.format(msg,params));
+		}
+	}
+
 	/**
 	 * 获取客户端的IP地址的方法是：request.getRemoteAddr()，这种方法在大部分情况下都是有效的。
 	 * 但是在通过了Apache,Squid等反向代理软件就不能获取到客户端的真实IP地址了，如果通过了多级反向代理的话，
@@ -298,6 +414,7 @@ public class Util {
 	 * 验证字符串只能包含字母和数字
 	 */
 	public static boolean isOnlyStrAndNum(String str) {
+		if(isNullOrEmpty(str))return false;
 		String regex = "^[0-9A-Za-z]+$";
 		return str.matches(regex);
 	}
@@ -305,13 +422,41 @@ public class Util {
 	 * 验证字符串必须包含字母和数字
 	 */
 	public static boolean isStrAndNum(String str) {
+		if(isNullOrEmpty(str))return false;
 		String regex = "^(?=.*[0-9].*)(?=.*[A-Za-z].*).*$";
 		return str.matches(regex);
+	}
+	/**
+	 * 验证字符串是否包含大写和小写
+	 */
+	public static boolean isUpLow(String str) {
+		if(isNullOrEmpty(str)){
+			return false;
+		}
+		char[] cs = str.toCharArray();
+		//默认没有小写字母
+		boolean low = false;
+		//默认没有大写字母
+		boolean upp = false;
+		for (char c : cs) {
+			if (Character.isLowerCase(c)){
+				low = true;
+			}
+			if (Character.isUpperCase(c)){
+				upp = true;
+			}
+		}
+		if (upp&&low) {
+			return true;
+		}else {
+			return false;
+		}
 	}
 	/**
 	 * 验证字符串有且必有大写小写数字
 	 */
 	public static boolean isUpLowNum(String str) {
+		if(isNullOrEmpty(str))return false;
 		String regex = "^(?=.*[0-9].*)(?=.*[A-Z].*)(?=.*[a-z].*).*$";		
 		return str.matches(regex);
 	}
@@ -319,6 +464,7 @@ public class Util {
 	 * 验证字符串有且必有大写小写数字特殊字符
 	 */
 	public static boolean isUpLowNumChar(String str) {
+		if(isNullOrEmpty(str))return false;
 		String regex = "^(?![A-Za-z0-9]+$)(?![a-z0-9\\W]+$)(?![A-Za-z\\W]+$)(?![A-Z0-9\\W]+$)[a-zA-Z0-9\\W]{4,}$";		
 		return str.matches(regex);
 	}
@@ -327,6 +473,7 @@ public class Util {
 	 * 且首字母大写
 	 */
 	public static boolean isUpOneAndLowNum(String str) {
+		if(isNullOrEmpty(str))return false;
 		String regex = "^(?=.*[0-9].*)(?=.*[A-Z].*)(?=.*[a-z].*).*$";
 		boolean matches = str.matches(regex);
 		if (matches) {
@@ -341,6 +488,7 @@ public class Util {
 	 * 且首字母大写
 	 */
 	public static boolean isUpOneAndLowNumChar(String str) {
+		if(isNullOrEmpty(str))return false;
 		String regex = "^(?![A-Za-z0-9]+$)(?![a-z0-9\\W]+$)(?![A-Za-z\\W]+$)(?![A-Z0-9\\W]+$)[a-zA-Z0-9\\W]{4,}$";		
 		boolean matches = str.matches(regex);
 		if (matches) {
@@ -354,7 +502,8 @@ public class Util {
 	 * BigDecimal跟BigInteger的大于0
 	 * 判断类型 如果是BigDecimal/BigInteger是调方法比较  其他是大于符号
 	 */
-	public static boolean isGtzero(Object value) {
+	public static boolean isGtZero(Object value) {
+		if(isNull(value))return false;
 		if (value instanceof BigDecimal) {
 			BigDecimal bd = (BigDecimal)value;
 			return bd.compareTo(new BigDecimal(0))==1;
@@ -379,6 +528,10 @@ public class Util {
 			Float i = (Float)value;
 			return i>0;
 		}
+		if (value instanceof Byte) {
+			Byte i = (Byte)value;
+			return i>0;
+		}
 		return false;
 	}
 	/**
@@ -386,6 +539,7 @@ public class Util {
 	 * BigDecimal跟BigInteger的大于0
 	 */
 	public static boolean isMax(Object value,Object max) {
+		if(isNull(value)||isNull(max))return false;
 		if (value instanceof BigDecimal||max instanceof BigDecimal) {
 			BigDecimal bd = new BigDecimal(value+"");
 			BigDecimal bd2 = new BigDecimal(max+"");
@@ -400,6 +554,8 @@ public class Util {
 				||value instanceof Long||max instanceof Long
 				||value instanceof Double||max instanceof Double
 				||value instanceof Float||max instanceof Float
+				||value instanceof Short || max instanceof Short
+				||value instanceof Byte || max instanceof Byte
 			) {
 			Double d = Double.parseDouble(value+"");
 			Double d2 = Double.parseDouble(max+"");
@@ -410,24 +566,27 @@ public class Util {
 	/**
 	 * 是否大于等于min
 	 */
-	public static boolean isMin(Object value,Object max) {
-		if (value instanceof BigDecimal||max instanceof BigDecimal) {
+	public static boolean isMin(Object value,Object min) {
+		if(isNull(value)||isNull(min))return false;
+		if (value instanceof BigDecimal||min instanceof BigDecimal) {
 			BigDecimal bd = new BigDecimal(value+"");
-			BigDecimal bd2 = new BigDecimal(max+"");
+			BigDecimal bd2 = new BigDecimal(min+"");
 			return bd.compareTo(bd2)!=-1;
 		}
-		if (value instanceof BigInteger||max instanceof BigInteger) {
+		if (value instanceof BigInteger||min instanceof BigInteger) {
 			BigInteger bi = new BigInteger(value+"");
-			BigInteger bi2 =new BigInteger(max+"");
+			BigInteger bi2 =new BigInteger(min+"");
 			return bi.compareTo(bi2)!=-1;
 		}
-		if (value instanceof Integer||max instanceof Integer
-				||value instanceof Long||max instanceof Long
-				||value instanceof Double||max instanceof Double
-				||value instanceof Float||max instanceof Float
+		if (value instanceof Integer||min instanceof Integer
+				||value instanceof Long||min instanceof Long
+				||value instanceof Double||min instanceof Double
+				||value instanceof Float||min instanceof Float
+				||value instanceof Short || min instanceof Short
+				||value instanceof Byte || min instanceof Byte
 			) {
 			Double d = Double.parseDouble(value+"");
-			Double d2 = Double.parseDouble(max+"");
+			Double d2 = Double.parseDouble(min+"");
 			return d>=d2;
 		}
 		return false;
@@ -530,6 +689,11 @@ public class Util {
 		}
 		return true;
 	}
+	public static boolean isCarNum(String carNumber) {
+		if(isNullOrEmpty(carNumber))return false;
+		String commonPlatePattern = "^([京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领][A-HJ-NP-Z][A-HJ-NP-Z0-9]{4,5}[A-HJ-NP-Z0-9挂学警港澳])$";
+		return carNumber.matches(commonPlatePattern);
+	}
 	/**
 	 * MD5加密
 	 */
@@ -578,32 +742,6 @@ public class Util {
 		if (pattern.matcher(url).matches()) {
 			return true;
 		} else {
-			return false;
-		}
-	}
-	/**
-	 * 验证字符串是否包含大写和小写
-	 */
-	public static boolean isUpLow(String str) {
-		if(isNullOrEmpty(str)){
-			return false;
-		}
-		char[] cs = str.toCharArray();
-		//默认没有小写字母
-		boolean low = false; 
-		//默认没有大写字母
-		boolean upp = false; 
-		for (char c : cs) {
-			if (Character.isLowerCase(c)){
-				low = true;
-			}
-			if (Character.isUpperCase(c)){
-				upp = true;
-			}
-		}
-		if (upp&&low) {
-			return true;
-		}else {
 			return false;
 		}
 	}

@@ -25,7 +25,9 @@ public class AuthModel implements Serializable {
     /** 失效时间 */
     private long failureTime;
     private Auth auth;
-
+    public static final String SYSTEM_TYPE_KEY = "auth_prototype_system_type";
+    public static final String AUTH_PROTOTYPE_ID = "auth_prototype_id";
+    public static final String SYSTEM_TYPE = "admin";
     public AuthModel() {
     }
 
@@ -45,6 +47,10 @@ public class AuthModel implements Serializable {
         attrs.put(key,value);
         return this;
     }
+    public String createAdminToken(){
+        attrs.put(SYSTEM_TYPE_KEY,SYSTEM_TYPE);
+        return createToken();
+    }
     /**
      * 创建token
      */
@@ -54,7 +60,7 @@ public class AuthModel implements Serializable {
         if(Util.isNotNullOrEmpty(auth.getSecret())){
             return Base64.getUrlEncoder().encodeToString(attrsJson.getBytes(StandardCharsets.UTF_8))+"."+EncryptionUtil.encrypt_HMAC_SHA256(auth.getSecret(),attrsJson);
         }
-        putAttr("auth_prototype_id", UUID.randomUUID().toString());
+        putAttr(AUTH_PROTOTYPE_ID, UUID.randomUUID().toString());
         //单点登录时 使用自定义属性(未设置UUID的) 查看是否存在token,存在就进行删除
         if(auth.isSingle()){
             auth.checkToken(attrsJson);

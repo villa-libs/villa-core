@@ -1,7 +1,5 @@
 package com.villa.log;
 
-import com.villa.log.Log;
-import com.villa.log.LogLevel;
 import com.villa.util.Util;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

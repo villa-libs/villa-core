@@ -65,7 +65,7 @@ public class Auth {
     /**
      * 验证此token的有效性
      * */
-    public boolean validate(String token){
+    public boolean validate(String token,String uri){
         if (Util.isNullOrEmpty(token)){
             Log.err("【登录失败】token为空");
             return false;
@@ -89,6 +89,10 @@ public class Auth {
         if(sessionModel&&curTime > authModel.getRequestLastTime()+1000*60*30){
             Log.err("【登录失败】token逻辑失效,超出30分钟未访问");
             redisClient.del(token);
+            return false;
+        }
+        //如果是后台请求 验证token内容是否包含系统类型为admin
+        if(uri.startsWith("/back") && !AuthModel.SYSTEM_TYPE.equals(authModel.getAttrs().get(AuthModel.SYSTEM_TYPE_KEY))){
             return false;
         }
         //更新请求时间

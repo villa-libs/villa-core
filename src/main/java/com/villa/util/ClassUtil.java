@@ -37,7 +37,42 @@ public class ClassUtil {
             }
         }
     }
-
+    public static Class coverPrimitive2wrap(Class clz){
+        if(isPrimitive(clz)){
+            switch (clz.getName()){
+                case "byte":
+                    return Byte.class;
+                case "short":
+                    return Short.class;
+                case "int":
+                    return Integer.class;
+                case "long":
+                    return Long.class;
+                case "float":
+                    return Float.class;
+                case "double":
+                    return Double.class;
+                case "char":
+                    return Character.class;
+                case "boolean":
+                    return Boolean.class;
+            }
+        }
+        return clz;
+    }
+    /**
+     * 判断是否是基本数据类型
+     */
+    public static boolean isPrimitive(Class<?> clazz) {
+        try {
+            if (clazz.isPrimitive()) {
+                return true;
+            }
+            return ((Class<?>) clazz.getField("TYPE").get(null)).isPrimitive();
+        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+            return false;
+        }
+    }
     /**
      * 根据方法名获取方法
      *

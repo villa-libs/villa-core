@@ -5,6 +5,7 @@ import com.villa.event.annotation.Event;
 import com.villa.event.annotation.EventListener;
 import com.villa.event.dto.EventDTO;
 import com.villa.event.dto.EventListenerDTO;
+import com.villa.util.ClassUtil;
 import com.villa.util.SpringContextUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -66,7 +67,6 @@ public class EventAOP {
             hasEventCache.put(methodName, eventDTO);
             //缓存了这个方法 但是这个方法没有事件
         } else if (eventDTO != null && !eventDTO.getHasEvent()) return returnObj;
-
         //事件相关
         initEventListener();
         //参数匹配
@@ -90,7 +90,8 @@ public class EventAOP {
             //再判断类型是否一致
             boolean isCurListener = true;
             for (int i = 0; i < types.length; i++) {
-                if (!types[i].isAssignableFrom(params[i].getClass())) {
+                //原本能拿到的是基本数据类型 但是params不会有基本数据类型 所以需要进行转换
+                if (!ClassUtil.coverPrimitive2wrap(types[i]).isAssignableFrom(params[i].getClass())) {
                     isCurListener = false;
                 }
             }

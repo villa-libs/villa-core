@@ -50,6 +50,8 @@ public class AuthorizationInterceptor implements HandlerInterceptor{
     /** 一秒超过多少次请求将进入黑名单 -1或0代表无限制 */
     @Value("${villa.blacklist.ipMax:-1}")
     private int ipMax;
+    @Value("${villa.blacklist.delay:-1}")//多少秒后解除黑名单 -1-永不解除
+    private int blacklistDelay;
     /** ip请求数在redis中的前缀常量 */
     private static final String IP_REQ_KEY = "auth_ip_req_";
     /** 黑名单ip在redis中的前缀常量 */
@@ -92,12 +94,12 @@ public class AuthorizationInterceptor implements HandlerInterceptor{
         //需要sign
         if(noSign==null){
             String timestampStr = request.getHeader("timestamp");
-            long timestamp = Long.parseLong(timestampStr);
             if(Util.isNullOrEmpty(timestampStr)||!Util.isNumeric(timestampStr)){
                 Log.err("【签名失败】timestamp为空或不是数字");
                 putErr(response,ResultDTO.put401(ErrCodeDTO.ox00001));
                 return false;
             }
+            long timestamp = Long.parseLong(timestampStr);
             //验证签名  签名必须存在于header中
             String sign = request.getHeader("sign");
             //获取当前token上次携带的请求时间
@@ -108,7 +110,7 @@ public class AuthorizationInterceptor implements HandlerInterceptor{
         }
 
         //验证token 启用了登录拦截 才去验证
-        if(noLogin==null&&!auth.validate(token)){
+        if(noLogin==null&&!auth.validate(token,request.getRequestURI())){
             putErr(response, ResultDTO.put401(ErrCodeDTO.ox00002));
             return false;
         }

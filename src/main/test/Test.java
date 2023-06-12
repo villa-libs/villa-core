@@ -6,6 +6,6 @@ import com.villa.util.EncryptionUtil;
  */
 public class Test {
     public static void main(String[] args) {
-        System.out.println(EncryptionUtil.encrypt_HMAC_SHA256("111026","nihaoma"));
+
     }
 }
