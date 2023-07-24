@@ -1,0 +1,63 @@
+server:
+  port: 3333
+  tomcat:
+    max-connections: 5000
+    max-threads: 1000
+    min-spare-threads: 0
+    uri-encoding: UTF-8
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 200MB
+      max-request-size: 200MB
+  jackson:
+    serialization:
+      #springboot默认吧date类型转换为时间戳
+      write-dates-as-timestamps: true
+      #null值不格式化
+    default-property-inclusion: non_null
+  application:
+    name: IMSDK
+  datasource:
+    # 采用动态选取 使用@DS在Service上指定非主数据源 事务配置需@Transactional(propagation = Propagation.REQUIRES_NEW)
+    dynamic:
+      primary: master #设置默认的数据源或者数据源组,默认值即为master
+      strict: false #严格匹配数据源,默认false. false使用默认数据源 true未匹配到指定数据源时抛异常
+      datasource:
+        # 主数据库
+        master:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://192.168.110.121/six-lottry?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&serverTimezone=GMT%2B8&useSSL=false
+          username: root
+          password: admin123
+  redis:
+    host: 192.168.3.13
+    port: 6379
+#    password:
+    database: 8
+#    cluster:
+#      nodes: #集群配置
+#        - 3.24.212.93:6379
+#      max-redirects: 3 # 获取失败 最大重定向次数
+    lettuce:
+      pool:
+        max-active: 100  # 连接池最大连接数默认值为8
+        max-wait: -1 # 连接池最大阻塞时间（使用负值表示没有限制）默认值为-1
+        max-idle: 10 # 连接池中最大空闲连接数默认值为8
+        min-idle: 10 # 连接池中的最小空闲连接数，默认值为0
+#mybatis-plus:
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #控制台打印sql
+villa:
+  encrypt:
+    flag: false #是否开启参数加密 默认关闭
+  blacklist: #黑名单配置
+    ipMax: 20 #洪攻击拦截 1秒的请求数 最大20次 默认20次
+    flag: false
+  auth:
+    delay: 28800 #token有效期 8小时 默认1个月
+#    secret: xingdao2021
+play:
+  method:
+    flag: false #是否开启多种玩法 默认为:false 不开启 true:开启

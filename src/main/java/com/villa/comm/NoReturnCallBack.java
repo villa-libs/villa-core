@@ -5,5 +5,5 @@ package com.villa.comm;
  * @bbs_url https://blog.csdn.net/u012169821
  */
 public interface NoReturnCallBack {
-    void callback();
+    void callback()throws Exception;
 }

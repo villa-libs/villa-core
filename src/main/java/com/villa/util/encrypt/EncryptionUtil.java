@@ -1,6 +1,7 @@
-package com.villa.util;
+package com.villa.util.encrypt;
 
-import com.villa.dto.RSAEncryptKeyDTO;
+import com.alibaba.fastjson.JSON;
+import com.villa.util.Util;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
@@ -8,6 +9,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
@@ -15,6 +17,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.Random;
 
 public class EncryptionUtil {
     /**
@@ -60,7 +63,7 @@ public class EncryptionUtil {
      * @param secret  密钥
      * @param message 加密内容
      */
-    public static String encrypt_HMAC_SHA256(String secret, String message) {
+    public static String encryptHMACSHA256(String secret, String message) {
         try {
             Mac hmacSha256 = Mac.getInstance("HmacSHA256");
             SecretKeySpec secret_key = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
@@ -88,7 +91,7 @@ public class EncryptionUtil {
      * @param data 要加密的数据
      * @return
      */
-    public static String encrypt_SHA1(String data) {
+    public static String encryptSHA1(String data) {
         if (Util.isNullOrEmpty(data)) {
             return null;
         }
@@ -119,7 +122,7 @@ public class EncryptionUtil {
      *
      * @param data 需要加密的数据
      */
-    public static String encrypt_SHA256(String data) {
+    public static String encryptSHA256(String data) {
         MessageDigest messageDigest;
         try {
             messageDigest = MessageDigest.getInstance("SHA-256");
@@ -134,7 +137,7 @@ public class EncryptionUtil {
     /**
      * MD5加密
      */
-    public static String encrypt_MD5(String data) {
+    public static String encryptMD5(String data) {
         //如果为空 原路返回
         if (Util.isNullOrEmpty(data)) {
             return null;
@@ -163,7 +166,7 @@ public class EncryptionUtil {
      * @param key  加解密的对称密钥
      * @return 加密字符串 加密失败返回null
      */
-    public static String encrypt_AES(String data, String key) {
+    public static String encryptAES(String data, String key) {
         if (Util.isNullOrEmpty(data) || Util.isNullOrEmpty(key)) {
             return null;
         }
@@ -186,7 +189,7 @@ public class EncryptionUtil {
      * @param key  加解密的对称密钥
      * @return 解密字符串 解密失败返回null
      */
-    public static String decrypt_AES(String data, String key) {
+    public static String decryptAES(String data, String key) {
         if (Util.isNullOrEmpty(data) || Util.isNullOrEmpty(key)) {
             return null;
         }
@@ -211,7 +214,7 @@ public class EncryptionUtil {
      * key 对称密钥
      * data 需要加密的数据
      */
-    public static String encrypt_DES(String data, String key) {
+    public static String encryptDES(String data, String key) {
         try {
             SecureRandom random = new SecureRandom();
             DESKeySpec desKey = new DESKeySpec(key.getBytes("UTF-8"));
@@ -235,7 +238,7 @@ public class EncryptionUtil {
      * @param key  对称密钥
      * @param data 需要解密的数据
      */
-    public static String decrypt_DES(String data, String key) {
+    public static String decryptDES(String data, String key) {
         try {
             // DES算法要求有一个可信任的随机数源
             SecureRandom random = new SecureRandom();
@@ -262,7 +265,7 @@ public class EncryptionUtil {
      * 生成随机的base64格式RSA公钥和私钥
      * 如果报错 则返回null
      */
-    public static RSAEncryptKeyDTO createRSAKey() {
+    public static EncryptKeys createRSAKey() {
         try {
             // KeyPairGenerator类用于生成公钥和私钥对，基于RSA算法生成对象
             KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
@@ -272,7 +275,7 @@ public class EncryptionUtil {
             KeyPair keyPair = keyPairGen.generateKeyPair();
             RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
             RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-            return new RSAEncryptKeyDTO(Base64.getEncoder().encodeToString(publicKey.getEncoded()), Base64.getEncoder().encodeToString(privateKey.getEncoded()));
+            return new EncryptKeys(Base64.getEncoder().encodeToString(publicKey.getEncoded()), Base64.getEncoder().encodeToString(privateKey.getEncoded()));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -285,7 +288,7 @@ public class EncryptionUtil {
      * @param publicKey base64格式的公钥
      * @return 密文 加密失败返回null
      */
-    public static String encrypt_public_key(String data, String publicKey) {
+    public static String encryptPublicKey(String data, String publicKey) {
         try {
             //base64编码的公钥
             byte[] decoded = Base64.getDecoder().decode(publicKey);
@@ -307,7 +310,7 @@ public class EncryptionUtil {
      * @param privateKey base64格式的私钥
      * @return 明文 解密失败返回null
      */
-    public static String decrypt_private_key(String data, String privateKey) {
+    public static String decryptPrivateKey(String data, String privateKey) {
         try {
             //64位解码加密后的字符串
             byte[] inputByte = Base64.getDecoder().decode(data);
@@ -331,7 +334,7 @@ public class EncryptionUtil {
      * @param privateKey base64格式的私钥
      * @return 加密字符串 加密失败返回null
      */
-    public static String encrypt_private_key(String data, String privateKey) {
+    public static String encryptPrivateKey(String data, String privateKey) {
         try {
             //base64编码的公钥
             byte[] decoded = Base64.getDecoder().decode(privateKey);
@@ -352,7 +355,7 @@ public class EncryptionUtil {
      * @param publicKey base64格式的公钥
      * @return 明文 解密失败返回null
      */
-    public static String decrypt_public_key(String data, String publicKey) {
+    public static String decryptPublicKey(String data, String publicKey) {
         try {
             //64位解码加密后的字符串
             byte[] inputByte = Base64.getDecoder().decode(data);
@@ -368,4 +371,53 @@ public class EncryptionUtil {
         }
     }
     //--------------------------------------RSA 非对称加解密结束-----------------------------------------------------------
+    //--------------------------------------DH密钥协商开始-----------------------------------------------------------
+
+    /**
+     * 创建DH公私钥
+     * @param prime         prime参数，需要与前端保持一致
+     * @param generator     generator参数，需要与前端保持一致
+     */
+    public static EncryptKeys createDHKey(String prime,String generator) {
+        //创建私钥
+        BigInteger privateNum = new BigInteger(150, new Random());
+        String privateKey = privateNum.toString(16);
+        //创建公钥
+        BigInteger publicNum = modPow(new BigInteger(generator, 16), privateNum, new BigInteger(prime, 16));
+        String publicKey = publicNum.toString(16);
+        return new EncryptKeys(publicKey,privateKey);
+    }
+    static BigInteger modPow(BigInteger a, BigInteger x, BigInteger p){
+        BigInteger answer = new BigInteger("1");
+        BigInteger two = new BigInteger("2");
+        while(x.compareTo(BigInteger.ZERO) > 0){    //x>0
+            if(x.mod(two).equals(BigInteger.ONE))   //x%2==1
+                answer = answer.multiply(a).mod(p); //
+            x = x.shiftRight(1);
+            a = a.multiply(a).mod(p);
+        }
+        return answer;
+    }
+
+    /**
+     * 生成共享密钥
+     * String prime = "262074f1e0e19618f0d2af786779d6ad9e814b";
+     * String generator = "02";
+     * EncryptKeys dhKeys = createDHKey(prime, generator);
+     * String aesKey = sharedAESKey("205433af153e57b8af7f800fd08f5dd4e4452f", dhKeys.getPrivateKey(), prime);
+     * System.out.println("公钥："+dhKeys.getPublicKey());
+     * System.out.println("私钥："+dhKeys.getPrivateKey());
+     * System.out.println("共享密钥："+aesKey);
+     * @param publicKey     16进制公钥
+     * @param privateKey    16进制密钥
+     * @param prime         16进制prime参数，需要与前端保持一致
+     * @return 共享密钥，AES专属32位
+     */
+    public static String sharedAESKey(String publicKey,String privateKey,String prime){
+        BigInteger aesKeyNum = modPow(new BigInteger(publicKey, 16), new BigInteger(privateKey, 16), new BigInteger(prime, 16));
+        String aesKey = aesKeyNum.toString(16);
+        //取后32位
+        return aesKey.substring(aesKey.length()-32);
+    }
+    //--------------------------------------DH密钥协商结束-----------------------------------------------------------
 }

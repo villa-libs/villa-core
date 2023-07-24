@@ -1,9 +1,9 @@
 package com.villa.config;
 
-import com.villa.util.EncryptionUtil;
 import com.villa.util.ThreadLocalUtil;
 import com.villa.util.Util;
-import org.springframework.beans.factory.annotation.Value;
+import com.villa.util.encrypt.EncryptionUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
@@ -22,31 +22,28 @@ import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-/**
- * @作者 微笑い一刀
- * @bbs_url https://blog.csdn.net/u012169821
- */
 @ControllerAdvice
 public class VillaRequestBodyAdvice implements RequestBodyAdvice {
-    @Value("${villa.encrypt.flag:false}")
-    private boolean encryptFlag;
-    //是否开启指定uri签名
-    @Value("${villa.encrypt.uri:}")
-    private String encryptURI;
+    @Autowired
+    private VillaConfig villaConfig;
     public boolean supports(MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
         return true;
     }
     public HttpInputMessage beforeBodyRead(HttpInputMessage httpInputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) throws IOException {
         //需要加密才加密
-        if(!encryptFlag){
+        if(!villaConfig.isEncryptFlag())return httpInputMessage;
+        String uri = getRequestURI(methodParameter);
+        if(villaConfig.getExcludeUris().contains(uri)){
             return httpInputMessage;
         }
-        String uri = getRequestURI(methodParameter);
-        if(Util.isNullOrEmpty(encryptURI)||(Util.isNotNullOrEmpty(encryptURI)&&Util.isNotNullOrEmpty(uri)&&uri.contains(encryptURI))){
-            String srcBody = StreamUtils.copyToString(httpInputMessage.getBody(), Charset.forName("utf-8"));
-            if(Util.isNotNullOrEmpty(srcBody)){
+        if(Util.isNullOrEmpty(villaConfig.getEncryptURI())||(Util.isNotNullOrEmpty(villaConfig.getEncryptURI())&&Util.isNotNullOrEmpty(uri)&&uri.contains(villaConfig.getEncryptURI()))){
+            String paramStr = StreamUtils.copyToString(httpInputMessage.getBody(), Charset.forName("utf-8"));
+            if (paramStr.startsWith("\"")) {
+                paramStr = paramStr.replace("\"","");
+            }
+            if(Util.isNotNullOrEmpty(paramStr)){
                 try{
-                    String body = EncryptionUtil.decrypt_AES(srcBody, EncryptionUtil.getSign(Long.parseLong(httpInputMessage.getHeaders().getFirst("timestamp"))));
+                    String body = EncryptionUtil.decryptAES(paramStr, ThreadLocalUtil.get().toString());
                     return new MyHttpInputMessage(httpInputMessage.getHeaders(),body.getBytes(StandardCharsets.UTF_8));
                 }catch (Exception e){}
             }

@@ -1,11 +1,10 @@
 package com.villa.auth;
 
 import com.alibaba.fastjson.JSON;
-import com.villa.util.EncryptionUtil;
+import com.villa.util.encrypt.EncryptionUtil;
 import com.villa.util.Util;
 
 import java.io.Serializable;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
@@ -47,6 +46,7 @@ public class AuthModel implements Serializable {
         attrs.put(key,value);
         return this;
     }
+    /** 后台用户登录的专用token生成方式 */
     public String createAdminToken(){
         attrs.put(SYSTEM_TYPE_KEY,SYSTEM_TYPE);
         return createToken();
@@ -58,7 +58,7 @@ public class AuthModel implements Serializable {
         //如果不是单点 往自定义属性集合中添加uuid用作区别
         String attrsJson = JSON.toJSONString(attrs);
         if(Util.isNotNullOrEmpty(auth.getSecret())){
-            return Base64.getUrlEncoder().encodeToString(attrsJson.getBytes(StandardCharsets.UTF_8))+"."+EncryptionUtil.encrypt_HMAC_SHA256(auth.getSecret(),attrsJson);
+            return Base64.getUrlEncoder().encodeToString(attrsJson.getBytes(StandardCharsets.UTF_8))+"."+EncryptionUtil.encryptHMACSHA256(auth.getSecret(),attrsJson);
         }
         putAttr(AUTH_PROTOTYPE_ID, UUID.randomUUID().toString());
         //单点登录时 使用自定义属性(未设置UUID的) 查看是否存在token,存在就进行删除
@@ -66,7 +66,7 @@ public class AuthModel implements Serializable {
             auth.checkToken(attrsJson);
         }
         //通过设置了UUID的自定义属性创建token 保持每次得到的token不一致
-        String token = EncryptionUtil.encrypt_MD5(JSON.toJSONString(attrs));
+        String token = EncryptionUtil.encryptMD5(JSON.toJSONString(attrs));
         //存映射关系
         if(auth.isSingle()){
             auth.putMapper(attrsJson,token);

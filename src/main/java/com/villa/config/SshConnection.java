@@ -7,10 +7,6 @@ import com.villa.util.Util;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-/**
- * @作者 微笑い一刀
- * @bbs_url https://blog.csdn.net/u012169821
- */
 @Component
 public class SshConnection {
     @Value("${villa.ssh.username:}")

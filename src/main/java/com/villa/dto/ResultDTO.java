@@ -7,7 +7,6 @@ public class ResultDTO<T> implements Serializable {
 	private int code;//200或其他 200是正确/成功
 	private String msg;//操作信息
 	private T data;//查询单个获取的信息
-	private long timestamp;
 	public static final String SUCCESS = "SUCCESS";
 	public static ResultDTO putSuccess(String msg,Object data) {
 		ResultDTO dto = new ResultDTO();
@@ -43,15 +42,6 @@ public class ResultDTO<T> implements Serializable {
 		dto.msg = msg;
 		return dto;
 	}
-
-	public long getTimestamp() {
-		return timestamp;
-	}
-
-	public void setTimestamp(long timestamp) {
-		this.timestamp = timestamp;
-	}
-
 	public int getCode() {
 		return code;
 	}

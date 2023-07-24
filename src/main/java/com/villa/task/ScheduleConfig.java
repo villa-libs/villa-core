@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
 @Configuration
 public class ScheduleConfig implements SchedulingConfigurer {
     /**
-     * @Async可满足一下需求
+     * @Async可满足以下需求
      * 1. 不同任务之间互不影响
      * 2. 相同任务之间也互不影响
      *
@@ -18,7 +18,7 @@ public class ScheduleConfig implements SchedulingConfigurer {
      * 1. 不同任务之间互不影响
      * 2. 相同任务之间排队执行
      * 则修改此值为大于任务数的值即可
-     * 目前仅一条线程执行任务,与默认配置一致 所以所有任务都是排队执行
+     * 如果仅一条线程执行任务,与默认配置一致 所以所有任务都是排队执行
      */
     @Value("${villa.task.num:1}")
     private int num;

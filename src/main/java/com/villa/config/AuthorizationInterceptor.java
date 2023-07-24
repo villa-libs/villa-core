@@ -10,10 +10,10 @@ import com.villa.dto.ResultDTO;
 import com.villa.log.Log;
 import com.villa.redis.RedisClient;
 import com.villa.util.ClassUtil;
-import com.villa.util.EncryptionUtil;
+import com.villa.util.IPUtil;
 import com.villa.util.Util;
+import com.villa.util.encrypt.EncryptionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -30,53 +30,33 @@ import java.util.Locale;
 public class AuthorizationInterceptor implements HandlerInterceptor{
     @Autowired
     private Auth auth;
-    //签名校验的事件误差
-    @Value("${villa.sign.delay:60}")
-    private int signDelay;
-    @Value("${villa.param.distort:false}")
-    private boolean paramDistort;
-    //是否开启参数加密
-    @Value("${villa.encrypt.flag:false}")
-    private boolean encryptFlag;
-    //是否开启指定uri签名
-    @Value("${villa.encrypt.uri:}")
-    private String encryptURI;
-    @Value("${villa.whitelist:}")
-    private String whitelist;
+    @Autowired
+    private VillaConfig villaConfig;
+    @Autowired
+    private RedisClient redisClient;
+
     private List<String> whitelists = new ArrayList<>();
-    /** 是否开启黑名单 默认关闭 */
-    @Value("${villa.blacklist.flag:false}")
-    private boolean blacklistFlag;
-    /** 一秒超过多少次请求将进入黑名单 -1或0代表无限制 */
-    @Value("${villa.blacklist.ipMax:-1}")
-    private int ipMax;
-    @Value("${villa.blacklist.delay:-1}")//多少秒后解除黑名单 -1-永不解除
-    private int blacklistDelay;
     /** ip请求数在redis中的前缀常量 */
     private static final String IP_REQ_KEY = "auth_ip_req_";
     /** 黑名单ip在redis中的前缀常量 */
     private static final String BLACKLIST_KEY = "auth_blacklist";
-    @Autowired
-    private RedisClient redisClient;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        String ip = Util.getIP(request);
+        String ip = IPUtil.getIP(request);
         //黑白名单验证
         if(!validateIp(ip)){
             return false;
         }
-        if(request.getMethod().equals("OPTIONS")){
-            return true;
-        }
-        //public开头的接口  不处理签名和登录 也意味着拿不到登录者
-        if(request.getRequestURI().startsWith("/public")){
-            return true;
-        }
         /**
-         * 如果这里得到一个ResourceHttpRequestHandler 检查URL是否拼接正确,
+         * 1. 方法类型是OPTION 严格来说这里仅处理POST/GET
+         * 2. public开头的接口  不处理签名和登录 也意味着拿不到登录者
+         * 3. 如果这里得到一个ResourceHttpRequestHandler 检查URL是否拼接正确,
          * 一般都是url拼接错误导致不存在此url,spring则会当成静态资源解析
          */
-        if(!(handler instanceof HandlerMethod)){
+        if(request.getMethod().equals("OPTIONS")||
+            request.getRequestURI().startsWith("/public")||
+            !(handler instanceof HandlerMethod)){
             return true;
         }
         HandlerMethod handlerMethod= (HandlerMethod)handler;
@@ -131,9 +111,9 @@ public class AuthorizationInterceptor implements HandlerInterceptor{
      */
     private boolean validateIp(String ip){
         //白名单访问拦截
-        if(Util.isNotNullOrEmpty(whitelist)){
+        if(Util.isNotNullOrEmpty(villaConfig.getWhiteList())){
             if(whitelists.size()==0){
-                String[] ips = whitelist.split(",");
+                String[] ips = villaConfig.getWhiteList().split(",");
                 whitelists = Arrays.asList(ips);
             }
             if(!whitelists.contains(ip)){
@@ -141,7 +121,7 @@ public class AuthorizationInterceptor implements HandlerInterceptor{
             }
         }
         //未开启黑名单 下面的代码就不执行
-        if(!blacklistFlag){
+        if(!villaConfig.isBlacklistFlag()){
             return true;
         }
         //当前ip在黑名单
@@ -159,7 +139,7 @@ public class AuthorizationInterceptor implements HandlerInterceptor{
             return true;
         }
         //当前ip这一秒的请求数 未超出限制
-        if(req <= ipMax){
+        if(req <= villaConfig.getIpMax()){
             setReqIpTimeAndCount(ip,reqSecond,++req);
             return true;
         }
@@ -177,16 +157,26 @@ public class AuthorizationInterceptor implements HandlerInterceptor{
         }
         //请求有效性 1分钟内 如果当前签名是超出了1分钟有效性范围的 则拦截
         long sysTime = System.currentTimeMillis();
-        if(Math.abs(sysTime-timestamp)>=1000*signDelay){
-            Log.err("【签名失败】timestamp和系统时间超出了[%s]秒，签名使用时间戳：%s,当前系统时间戳：%s",signDelay,timestamp,sysTime);
+        if(Math.abs(sysTime-timestamp)>=1000* villaConfig.getSignDelay()){
+            Log.err("【签名失败】timestamp和系统时间超出了[%s]秒，签名使用时间戳：%s,当前系统时间戳：%s",villaConfig.getSignDelay(),timestamp,sysTime);
             return false;
         }
         //如果开启参数加密 则获取一次参数
-        if(encryptFlag||paramDistort){
+        if(villaConfig.isEncryptFlag()){
+            //当前请求的uri包含排除的
+            if(villaConfig.getExcludeUris().contains(request.getRequestURI())){
+                return EncryptionUtil.getSign(timestamp).equals(sign.toUpperCase());
+            }
             //不指定uri加密 或指定uri加密并且当前访问的uri命中指定uri
-            if(Util.isNullOrEmpty(encryptURI)||(Util.isNotNullOrEmpty(encryptURI)&&request.getRequestURI().contains(encryptURI))){
+            if((Util.isNullOrEmpty(villaConfig.getEncryptURI())||
+                Util.isNotNullOrEmpty(villaConfig.getEncryptURI())&&request.getRequestURI().contains(villaConfig.getEncryptURI()))
+            ){
                 String paramStr = ClassUtil.getParamStr(request);
-                String sysSign = EncryptionUtil.encrypt_MD5(EncryptionUtil.getSign(timestamp) + (Util.isNotNullOrEmpty(paramStr) ? paramStr : "")).toUpperCase(Locale.ROOT);
+                //套了一层双引号
+                if (Util.isNotNullOrEmpty(paramStr) && paramStr.startsWith("\"")) {
+                    paramStr = paramStr.replace("\"","");
+                }
+                String sysSign = EncryptionUtil.encryptMD5(EncryptionUtil.getSign(timestamp) + (Util.isNotNullOrEmpty(paramStr) ? paramStr : "")).toUpperCase(Locale.ROOT);
                 boolean signEq = sysSign.equals(sign.toUpperCase());
                 if(!signEq){
                     Log.err("【签名失败】系统签名=>"+sysSign+"\t\t 接收到的签名===>"+sign.toUpperCase()+"，当前系统开启了加密访问，请确认加密规则是否正确");

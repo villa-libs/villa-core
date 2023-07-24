@@ -7,10 +7,6 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.*;
 import java.nio.charset.Charset;
 
-/**
- * @作者 微笑い一刀
- * @bbs_url https://blog.csdn.net/u012169821
- */
 public class BodyReaderHttpServletRequestWrapper extends HttpServletRequestWrapper {
     private final byte[] body;
     private String bodyStr;

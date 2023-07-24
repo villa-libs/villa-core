@@ -3,13 +3,13 @@ package com.villa.auth;
 import com.alibaba.fastjson.JSON;
 import com.villa.log.Log;
 import com.villa.redis.RedisClient;
-import com.villa.util.EncryptionUtil;
+import com.villa.util.SystemUtil;
+import com.villa.util.encrypt.EncryptionUtil;
 import com.villa.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.net.URLDecoder;
 import java.util.Base64;
 import java.util.HashMap;
 
@@ -112,7 +112,7 @@ public class Auth {
                 //.点 需要转义
                 String[] infos = token.split("\\.");
                 String data = new String(Base64.getUrlDecoder().decode(infos[0]));
-                String sign = EncryptionUtil.encrypt_HMAC_SHA256(secret, data);
+                String sign = EncryptionUtil.encryptHMACSHA256(secret, data);
                 //判断签名
                 if(!sign.equals(infos[1])){
                     return null;
@@ -135,6 +135,15 @@ public class Auth {
             newDelay = delay;
         }
         redisClient.set(token,authModel,newDelay);
+    }
+
+    /**
+     * 重置属性值
+     */
+    public void resetAttr(String token,String key,Object value){
+        AuthModel authModel = getAuthModel(token);
+        authModel.putAttr(key,value);
+        setRequestLastTime(authModel, System.currentTimeMillis(), token);
     }
     public void logout(String token){
         redisClient.del(token);

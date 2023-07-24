@@ -2,7 +2,7 @@ package com.villa.util;
 
 import com.villa.comm.CallBack;
 import com.villa.comm.NoReturnCallBack;
-import com.villa.log.Log;
+import com.villa.util.encrypt.EncryptionUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
@@ -36,6 +36,8 @@ public class Util {
 	public static final String assertionIsRangeLength = "assertionIsRangeLength";
 	public static final String assertionIsCarNum = "assertionIsCarNum";
 	public static final String assertionIsOnlyStrAndNum = "assertionIsOnlyStrAndNum";
+	public static final String assertionIsContainChinese = "assertionIsContainChinese";
+	public static final String assertionIsNotContainChinese = "assertionIsNotContainChinese";
 	public static final String assertionIsStrAndNum = "assertionIsStrAndNum";
 	public static final String assertionIsUpLow = "assertionIsUpLow";
 	public static final String assertionIsUpLowNum = "assertionIsUpLowNum";
@@ -51,27 +53,21 @@ public class Util {
 	 * 可被Validate注解使用
 	 */
 	public static void assertionIsFalse(boolean b,String msg,Object...params){
-		if(b){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(b)throw new RuntimeException(String.format(msg,params));
 	}
 	/**
 	 * 断言结果为true    为false则报错
 	 * 可被Validate注解使用
 	 */
 	public static void assertionIsTrue(boolean b,String msg,Object...params){
-		if(!b){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(!b)throw new RuntimeException(String.format(msg,params));
 	}
 	/**
 	 * 断言字符串是数字
 	 * 可被Validate注解使用
 	 */
 	public static void assertionIsNumber(String str,String msg,Object...params){
-		if(!isNumeric(str)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(!isNumeric(str))throw new RuntimeException(String.format(msg,params));
 	}
 
 	/**
@@ -79,116 +75,82 @@ public class Util {
 	 * 可被Validate注解使用
 	 */
 	public static void assertionIsUrl(String str,String msg,Object...params){
-		if(!isUrl(str)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(!isUrl(str))throw new RuntimeException(String.format(msg,params));
 	}
 	/**
 	 * 断言是邮箱
 	 * 可被Validate注解使用
 	 */
 	public static void assertionIsEmail(String str,String msg,Object...params){
-		if(!isEmail(str)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(!isEmail(str))throw new RuntimeException(String.format(msg,params));
 	}
 	/**
 	 * 断言是手机号码
 	 * 可被Validate注解使用
 	 */
 	public static void assertionIsPhone(String str,String msg,Object...params){
-		if(!isMobile(str)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(!isMobile(str))throw new RuntimeException(String.format(msg,params));
 	}
 	/**
 	 * 断言两个数字不相等 支持基本数据类型及其包装类和bigDecimal,bigInteger
 	 */
 	public static void assertionIsNumberNotEq(Object num1,Object num2,String msg,Object...params){
-		if(isNull(num1)||isNull(num2)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(isNull(num1)||isNull(num2))throw new RuntimeException(String.format(msg,params));
 		if(num1 instanceof BigDecimal||num2 instanceof BigDecimal
 				|| num1 instanceof BigInteger || num2 instanceof BigInteger){
-			if(new BigDecimal(num1.toString()).compareTo(new BigDecimal(num2.toString()))==0){
-				throw new RuntimeException(String.format(msg,params));
-			}
-		}else{
-			if(num1.equals(num2)){
-				throw new RuntimeException(String.format(msg,params));
-			}
-		}
+			if(new BigDecimal(num1.toString()).compareTo(new BigDecimal(num2.toString()))==0)throw new RuntimeException(String.format(msg,params));
+		}else if(num1.equals(num2))throw new RuntimeException(String.format(msg,params));
 	}
 	/**
 	 * 断言两个数字相等 支持基本数据类型及其包装类和bigDecimal,bigInteger
 	 */
 	public static void assertionIsNumberEq(Object num1,Object num2,String msg,Object...params){
-		if(isNull(num1)||isNull(num2)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(isNull(num1)||isNull(num2))throw new RuntimeException(String.format(msg,params));
 		if(num1 instanceof BigDecimal||num2 instanceof BigDecimal
 			|| num1 instanceof BigInteger || num2 instanceof BigInteger){
-			if(new BigDecimal(num1.toString()).compareTo(new BigDecimal(num2.toString()))!=0){
-				throw new RuntimeException(String.format(msg,params));
-			}
-		}else{
-			if(!num1.equals(num2)){
-				throw new RuntimeException(String.format(msg,params));
-			}
-		}
+			if(new BigDecimal(num1.toString()).compareTo(new BigDecimal(num2.toString()))!=0)throw new RuntimeException(String.format(msg,params));
+		}else if(!num1.equals(num2))throw new RuntimeException(String.format(msg,params));
 	}
 	/**
 	 * 断言两个字符串相等  注意 两个字符串都不能为空 否则一样报错
 	 */
 	public static void assertionIsStrEq(String str1,String str2,String msg,Object...params){
-		if(isNullOrEmpty(str1)||isNullOrEmpty(str2)||!str1.equals(str2)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(isNullOrEmpty(str1)||isNullOrEmpty(str2)||!str1.equals(str2))throw new RuntimeException(String.format(msg,params));
 	}
 
 	/**
 	 * 断言两个字符串不能相等 一般用在修改密码时 新旧不密码不能相同
 	 */
 	public static void assertionIsStrNotEq(String str1,String str2,String msg,Object...params){
-		if(isNullOrEmpty(str1)||isNullOrEmpty(str2)||str1.equals(str2)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(isNullOrEmpty(str1)||isNullOrEmpty(str2)||str1.equals(str2))throw new RuntimeException(String.format(msg,params));
 	}
 	/**
 	 * 断言为null
 	 * 可被Validate注解使用
 	 */
 	public static void assertionIsNull(Object obj,String msg,Object...params){
-		if(isNotNull(obj)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(isNotNull(obj))throw new RuntimeException(String.format(msg,params));
 	}
 	/**
 	 * 断言不为null
 	 * 可被Validate注解使用
 	 */
 	public static void assertionIsNotNull(Object obj,String msg,Object...params){
-		if(isNull(obj)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(isNull(obj))throw new RuntimeException(String.format(msg,params));
 	}
 	/**
 	 * 断言非空
 	 * 可被Validate注解使用
 	 */
 	public static void assertionIsNotNullOrEmpty(String str,String msg,Object...params){
-		if(isNullOrEmpty(str)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(isNullOrEmpty(str))throw new RuntimeException(String.format(msg,params));
 	}
 	/**
 	 * 断言字符串是否是身份证
 	 * 可被Validate注解使用
 	 */
 	public static void assertionIsIdCard(String idCard,String msg,Object...params){
-		if(!isCard(idCard)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(!isCard(idCard))throw new RuntimeException(String.format(msg,params));
 	}
 
 	/**
@@ -196,9 +158,7 @@ public class Util {
 	 * 可被Validate注解使用
 	 */
 	public static void assertionIsEmptyCollection(Collection collection, String msg,Object...params) {
-		if (collection!=null && !collection.isEmpty()) {
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if (collection!=null && !collection.isEmpty())throw new RuntimeException(String.format(msg,params));
 	}
 
 	/**
@@ -206,9 +166,7 @@ public class Util {
 	 * 可被Validate注解使用
 	 */
 	public static void assertionIsNotEmptyCollection(Collection collection, String msg,Object...params) {
-		if (collection==null || collection.isEmpty()) {
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if (collection==null || collection.isEmpty())throw new RuntimeException(String.format(msg,params));
 	}
 	/**
 	 * 断言代码不会报错
@@ -233,134 +191,90 @@ public class Util {
 		}
 	}
 	public static void assertionIsRangeLength(String str,int minLength,int maxLength,String msg,Object...params){
-		if(!isRangeLength(str,minLength,maxLength)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(!isRangeLength(str,minLength,maxLength))throw new RuntimeException(String.format(msg,params));
 	}
 
 	/**
 	 * 断言字符串为车牌号码
 	 */
 	public static void assertionIsCarNum(String str,String msg,Object...params){
-		if(!isCarNum(str)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(!isCarNum(str))throw new RuntimeException(String.format(msg,params));
 	}
 
 	/**
 	 * 断言字符串仅能为字母+数字 不能有特殊符号
 	 */
 	public static void assertionIsOnlyStrAndNum(String str,String msg,Object...params){
-		if(!isOnlyStrAndNum(str)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(!isOnlyStrAndNum(str))throw new RuntimeException(String.format(msg,params));
+	}
+
+	/**
+	 * 断言包含中文 不包含中文报错
+	 */
+	public static void assertionIsContainChinese(String str,String msg,Object...params){
+		if(!isContainChinese(str))throw new RuntimeException(String.format(msg,params));
+	}
+	/**
+	 * 断言不包含中文 包含中文报错
+	 */
+	public static void assertionIsNotContainChinese(String str,String msg,Object...params){
+		if(isContainChinese(str))throw new RuntimeException(String.format(msg,params));
 	}
 	/**
 	 * 断言字符串包含字母+数字
 	 */
 	public static void assertionIsStrAndNum(String str,String msg,Object...params){
-		if(!isStrAndNum(str)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(!isStrAndNum(str))throw new RuntimeException(String.format(msg,params));
 	}
 	/**
 	 * 断言字符串有且必有大写小写字母
 	 */
 	public static void assertionIsUpLow(String str,String msg,Object...params){
-		if(!isUpLow(str)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(!isUpLow(str))throw new RuntimeException(String.format(msg,params));
 	}
 	/**
 	 * 断言字符串有且必有大写小写字母+数字
 	 */
 	public static void assertionIsUpLowNum(String str,String msg,Object...params){
-		if(!isUpLowNum(str)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(!isUpLowNum(str))throw new RuntimeException(String.format(msg,params));
 	}
 	/**
 	 * 断言字符串有且必有大写小写字母+数字+特殊字符
 	 */
 	public static void assertionIsUpLowNumChar(String str,String msg,Object...params){
-		if(!isUpLowNumChar(str)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(!isUpLowNumChar(str))throw new RuntimeException(String.format(msg,params));
 	}
 	/**
 	 * 断言字符串有且必有大写小写字母+数字 且首字母大写
 	 */
 	public static void assertionIsUpOneAndLowNum(String str,String msg,Object...params){
-		if(!isUpOneAndLowNum(str)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(!isUpOneAndLowNum(str))throw new RuntimeException(String.format(msg,params));
 	}
 	/**
 	 * 断言字符串有且必有大写小写字母+数字+特殊字符 且首字母大写
 	 */
 	public static void assertionIsUpOneAndLowNumChar(String str,String msg,Object...params){
-		if(!isUpOneAndLowNumChar(str)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(!isUpOneAndLowNumChar(str))throw new RuntimeException(String.format(msg,params));
 	}
 	/**
 	 * 断言值大于0 如果不是BigDecimal/BigInteger/Integer/Double/Float/Byte 直接断言失败
 	 */
 	public static void assertionIsGtZero(Object value,String msg,Object...params){
-		if(!isGtZero(value)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(!isGtZero(value))throw new RuntimeException(String.format(msg,params));
 	}
 	/**
 	 * 断言值最大为值 小于等于max
 	 */
 	public static void assertionIsMax(Object value,Object max,String msg,Object...params){
-		if(!isMax(value,max)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(!isMax(value,max))throw new RuntimeException(String.format(msg,params));
 	}
 	/**
 	 * 断言值最大为值 大于等于min
 	 */
 	public static void assertionIsMin(Object value,Object min,String msg,Object...params){
-		if(!isMin(value,min)){
-			throw new RuntimeException(String.format(msg,params));
-		}
+		if(!isMin(value,min))throw new RuntimeException(String.format(msg,params));
 	}
 
-	/**
-	 * 获取客户端的IP地址的方法是：request.getRemoteAddr()，这种方法在大部分情况下都是有效的。
-	 * 但是在通过了Apache,Squid等反向代理软件就不能获取到客户端的真实IP地址了，如果通过了多级反向代理的话，
-	 * X-Forwarded-For的值并不止一个，而是一串IP值， 是取X-Forwarded-For中第一个非unknown的有效IP字符串。
-	 * 例如：X-Forwarded-For：192.168.1.110, 192.168.1.120, 192.168.1.130,
-	 * 192.168.1.100 用户真实IP为： 192.168.1.110
-	 * @param request
-	 * @return
-	 */
-	public static String getIP(HttpServletRequest request) {
-		String ip = request.getHeader("x-forwarded-for");
-		if (ip == null || ip.length() == 0 ||"unknown".equalsIgnoreCase(ip)){
-			ip = request.getHeader("Proxy-Client-IP");
-		}
-		if (ip == null || ip.length() == 0 ||"unknown".equalsIgnoreCase(ip)){
-			ip = request.getHeader("WL-Proxy-Client-IP");
-		}
-		if (ip == null || ip.length() == 0 ||"unknown".equalsIgnoreCase(ip)){
-			//这一步可能得到的是127.0.0.1  如果需要内网地址 通过网卡获取即可
-			ip = request.getRemoteAddr();
-		}
-		// 对于通过多个代理的情况， 第一个IP为客户端真实IP,多个IP按照','分割 "***.***.***.***".length() = 15
-		int ipMaxLength = 15;
-		if (ip != null && ip.length() > ipMaxLength) {
-			if(ip.indexOf(",")!=-1){
-				return ip.substring(0, ip.indexOf(","));
-			}
-			if(ip.indexOf(":")!=-1){
-				return ip;
-			}
-		}
-		return ip;
-	}
 	/**
 	 * 从字符串中获取数字的字符串
 	 * @return
@@ -409,6 +323,17 @@ public class Util {
 	 */
 	public static boolean isNotNull(Object obj) {
 		return obj != null;
+	}
+	/**
+	 * 字符串是否包含中文
+	 * @param str 待校验字符串
+	 * @return true 包含中文字符 false 不包含中文字符
+	 */
+	public static boolean isContainChinese(String str){
+		if(isNullOrEmpty(str))return false;
+		Pattern p = Pattern.compile("[\u4E00-\u9FA5|\\！|\\，|\\。|\\（|\\）|\\《|\\》|\\“|\\”|\\？|\\：|\\；|\\【|\\】]");
+		Matcher m = p.matcher(str);
+		return m.find();
 	}
 	/**
 	 * 验证字符串只能包含字母和数字
@@ -698,7 +623,7 @@ public class Util {
 	 * MD5加密
 	 */
 	public static String MD5(String str) {
-		return EncryptionUtil.encrypt_MD5(str);
+		return EncryptionUtil.encryptMD5(str);
 	}
 	/**
 	 * 验证手机号码
