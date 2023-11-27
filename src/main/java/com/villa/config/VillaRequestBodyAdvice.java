@@ -1,5 +1,6 @@
 package com.villa.config;
 
+import com.villa.log.Log;
 import com.villa.util.ThreadLocalUtil;
 import com.villa.util.Util;
 import com.villa.util.encrypt.EncryptionUtil;
@@ -45,7 +46,9 @@ public class VillaRequestBodyAdvice implements RequestBodyAdvice {
                 try{
                     String body = EncryptionUtil.decryptAES(paramStr, ThreadLocalUtil.get().toString());
                     return new MyHttpInputMessage(httpInputMessage.getHeaders(),body.getBytes(StandardCharsets.UTF_8));
-                }catch (Exception e){}
+                }catch (Exception e){
+                    Log.err("接口解密失败,失败消息:"+e.getMessage());
+                }
             }
         }
         return httpInputMessage;

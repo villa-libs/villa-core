@@ -6,10 +6,6 @@ import com.villa.log.Log;
 
 import java.util.List;
 
-/**
- * @作者 微笑い一刀
- * @bbs_url https://blog.csdn.net/u012169821
- */
 public class SqlUtil {
     /**
      * 执行dml操作

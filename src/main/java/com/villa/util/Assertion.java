@@ -7,9 +7,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 
-/**
- * 专用于断言的工具类
- */
+/**专用于断言的工具类*/
 public class Assertion {
     public static final String assertionIsTrue = "assertionIsTrue";
     public static final String assertionIsFalse = "assertionIsFalse";

@@ -1,15 +1,18 @@
 package com.villa.dto;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.villa.entity.BaseEntity;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class PageDTO<T> {
+public class PageDTO<T extends BaseEntity> {
     private long page;//当前页
     private long pageSize;//每页显示条数
     private long total;//总记录数
     private long pageCount;//尾页
     private List<T> data;//数据集
-
+    private T obj;//用作高级查询
     public PageDTO() {
     }
     public long getPage() {
@@ -66,5 +69,23 @@ public class PageDTO<T> {
 
     public long getFromRowIndex() {
         return (this.page - 1L) * this.pageSize;
+    }
+
+    public T getObj() {
+        return obj;
+    }
+
+    public void setObj(T obj) {
+        this.obj = obj;
+    }
+
+    public QueryWrapper<T> getPageWrapper() {
+        if(getObj() != null){
+            return (QueryWrapper<T>) getObj().getWrapper().last(" limit " + getFromRowIndex() + "," + getPageSize());
+        }else{
+            QueryWrapper<T> wrapper = new QueryWrapper<>();
+            wrapper.last(" limit " + getFromRowIndex() + "," + getPageSize());
+            return wrapper;
+        }
     }
 }

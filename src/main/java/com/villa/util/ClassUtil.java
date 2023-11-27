@@ -110,9 +110,7 @@ public class ClassUtil {
         });
         if (!map.isEmpty()) {
             StringBuilder paramStr = new StringBuilder();
-            map.keySet().forEach(key -> {
-                paramStr.append(key + map.get(key));
-            });
+            map.keySet().forEach(key -> paramStr.append(key + map.get(key)));
             return paramStr.toString();
         }
         return null;

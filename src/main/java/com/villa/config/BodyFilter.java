@@ -25,18 +25,27 @@ public class BodyFilter implements Filter {
             throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String reqURI = httpRequest.getRequestURI();
-        if(villaConfig.isEncryptFlag())handlerSecret(httpRequest);
+        /**
+         * 1. 如果未开启加密
+         * 2. 如果是放行的路径
+         * 直接放行
+         */
+        if(!villaConfig.isEncryptFlag() || villaConfig.getExcludeUris().contains(reqURI)){
+            chain.doFilter(request, response);
+            return;
+        }
         /**
          * 1. 上传请求 无需包装
          * 2. 被排除加密的URI 一般是注册登录这些
          */
-        if(Util.isNotNullOrEmpty(request.getContentType())&&request.getContentType().startsWith("multipart/")
-        ||villaConfig.getExcludeUris().contains(reqURI)){
+        if(Util.isNotNullOrEmpty(request.getContentType())&&request.getContentType().startsWith("multipart/")){
+            handlerSecret(httpRequest);
             chain.doFilter(request, response);
             return;
         }
         //需要参数加密才包装请求对象
         if (request instanceof HttpServletRequest&& villaConfig.isEncryptFlag()) {
+            handlerSecret(httpRequest);
             //没有指定加密路径 或当前路径是指定的加密路径
             if(Util.isNullOrEmpty(villaConfig.getEncryptURI())||
                 (Util.isNotNullOrEmpty(villaConfig.getEncryptURI())&&httpRequest.getRequestURI().contains(villaConfig.getEncryptURI()))){

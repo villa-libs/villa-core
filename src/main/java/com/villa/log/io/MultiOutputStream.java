@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * @作者 微笑い一刀
- * @bbs_url https://blog.csdn.net/u012169821
  * 多端输出
  */
 public class MultiOutputStream extends OutputStream {

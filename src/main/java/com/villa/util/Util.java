@@ -7,6 +7,9 @@ import com.villa.util.encrypt.EncryptionUtil;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.PrivateKey;
+import java.security.Signature;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -924,7 +927,7 @@ public class Util {
 	 */
 	public static String getHost(HttpServletRequest request){
 		String contextPath = request.getContextPath();
-		return  request.getScheme() + "://" + request.getServerName()+(isNotNullOrEmpty(contextPath)?"/"+contextPath:"");
+		return  request.getScheme() + "://" + request.getServerName()+":"+(request.getServerPort())+(isNotNullOrEmpty(contextPath)?"/"+contextPath:"");
 	}
 
 	/**
@@ -933,5 +936,15 @@ public class Util {
 	public static String getDomain(HttpServletRequest request){
 		String contextPath = request.getContextPath();
 		return  request.getScheme() + "://" + request.getServerName();
+	}
+	public static String sign(PrivateKey privateKey, String data){
+		try{
+			Signature signature = Signature.getInstance("SHA256withRSA");
+			signature.initSign(privateKey);
+			signature.update(data.getBytes(StandardCharsets.UTF_8));
+			return new String(Base64.getEncoder().encode(signature.sign()));
+		}catch (Exception e){
+			throw new RuntimeException("签名失败");
+		}
 	}
 }

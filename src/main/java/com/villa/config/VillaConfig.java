@@ -15,6 +15,9 @@ public class VillaConfig {
     //参数加密
     @Value("${villa.encrypt.flag:false}")
     private boolean encryptFlag;
+    //AES加密的偏移量
+    @Value("${villa.encrypt.iv:}")
+    private String iv;
     //白名单
     @Value("${villa.whitelist:}")
     private String whiteList;
@@ -161,5 +164,13 @@ public class VillaConfig {
 
     public void setSignDelay(int signDelay) {
         this.signDelay = signDelay;
+    }
+
+    public String getIv() {
+        return iv;
+    }
+
+    public void setIv(String iv) {
+        this.iv = iv;
     }
 }
