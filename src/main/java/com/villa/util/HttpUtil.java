@@ -260,8 +260,13 @@ public class HttpUtil {
         InputStream inputStream;
         if (code == 200) {
             inputStream = conn.getInputStream();
-        } else {
+        }else if(code == 204){//响应成功  但是无内容
+            return null;
+        }else {
             inputStream = conn.getErrorStream();
+        }
+        if(inputStream == null){
+            return null;
         }
         BufferedReader bReader = new BufferedReader(new InputStreamReader(inputStream, charSet));
         String line, resultStr = "";

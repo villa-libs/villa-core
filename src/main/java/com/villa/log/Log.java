@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -19,7 +20,8 @@ public class Log {
      * 日志输出等级 默认err
      */
     private static int log_lv = LogLevel.debug;
-    private static File logFile;
+    private static File logoutFile;
+    private static File logerrFile;
     private static File logPath;
     //标准输出流
     private static PrintStream out;
@@ -29,7 +31,6 @@ public class Log {
     public static int logSize = 10;
     //方法调用层级 需要往方法栈中的多少层才能获取到调用者真正所在方法
     public static int index = 3;
-    private static WriteErrHandler writeErrHandler;
     public static void init() {
         init(log_lv, true, null);
     }
@@ -62,7 +63,6 @@ public class Log {
             removeBeforeLogs();
         }
         try {
-            writeErrHandler = new WriteErrHandler(logPath);
             initOutStream();
             out("【日志组件】初始化完成!");
         } catch (IOException e) {
@@ -75,19 +75,16 @@ public class Log {
      * 初始化输出流
      */
     private static void initOutStream() throws IOException {
-        logFile = new File(logPath, new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(new Date()) + ".log");
-        if (!logFile.exists()) {
-            logFile.createNewFile();
-        }
         if (out == null) {
             out = System.out;
         }
         if (err == null) {
             err = System.err;
         }
-        FileOutputStream fileOutputStream = new FileOutputStream(logFile);
-        PrintStream outPrintStream = new PrintStream(new MultiOutputStream(fileOutputStream, out));
-        PrintStream errPrintStream = new PrintStream(new MultiOutputStream(fileOutputStream, err));
+        logoutFile = getFile("out");
+        logerrFile = getFile("err");
+        PrintStream outPrintStream = new PrintStream(new MultiOutputStream(Files.newOutputStream(logoutFile.toPath()), out));
+        PrintStream errPrintStream = new PrintStream(new MultiOutputStream(Files.newOutputStream(logerrFile.toPath()), err));
         System.setOut(outPrintStream);
         System.setErr(errPrintStream);
     }
@@ -115,7 +112,6 @@ public class Log {
 
     public static void err(Object msg,Object...params){
         String realMsg = String.format(getMsg(msg,index), params);
-        writeErrHandler.write(realMsg);
         System.err.println(realMsg);
     }
 
@@ -132,13 +128,19 @@ public class Log {
         int lineNumber = Thread.currentThread().getStackTrace()[index].getLineNumber();
         return getTime() + "\t" + msg + "\t" + fullClassName + "." + methodName + "():" + lineNumber;
     }
-
+    private static File getFile(String outType) throws IOException {
+        File file = new File(logPath, new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(new Date()) +("err".equals(outType)?"-err":"")+ ".log");
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+        return file;
+    }
 
     /**
      * 判断当前文件多大了  是否超过10M 如果超过10M就将此文件关闭并压缩 重新生成新的日志文件
      */
     public static void validateFile() {
-        if (logFile.length() < 1024 * 1024 * logSize) {
+        if (logoutFile.length() < 1024L * 1024 * logSize) {
             return;
         }
         //大于10M了

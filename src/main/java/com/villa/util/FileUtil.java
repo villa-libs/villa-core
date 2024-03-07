@@ -101,24 +101,46 @@ public class FileUtil {
      * 下载线上资源返回字节数组
      * @param fileURL 下载地址
      */
-    public static byte[] downloadFileToBytes(String fileURL) throws IOException {
-        URL url = new URL(fileURL);
-        //链接网络地址
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        InputStream in = connection.getInputStream();
-        byte[] data = new byte[in.available()];
-        in.read(data);
-        in.close();
-        return data;
+    public static byte[] downloadFileToBytes(String fileURL,Map<String, String> header) throws IOException {
+        InputStream in = downloadFileToStream(fileURL,header);
+        byte[] bytes = new byte[102400];
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            int index = 0;
+            while (-1 != (index = in.read(bytes, 0, bytes.length))) {
+                baos.write(bytes, 0, index);
+            }
+            in.close();
+            return baos.toByteArray();
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }finally {
+            if (in != null) {
+                in.close();
+            }
+            if (baos != null) {
+                baos.flush();
+                baos.close();
+            }
+        }
     }
     /**
      * 下载线上资源 返回流
      * @param fileURL 下载地址
      */
-    public static InputStream downloadFileToStream(String fileURL) throws IOException {
+    public static InputStream downloadFileToStream(String fileURL,Map<String, String> header) throws IOException {
         URL url = new URL(fileURL);
         //链接网络地址
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setConnectTimeout(1000 * 60 * 60);
+        connection.setReadTimeout(1000 * 60 * 60);
+        if (header != null) {
+            Set<String> keys = header.keySet();
+            for (String key : keys) {
+                connection.addRequestProperty(key, header.get(key));
+            }
+        }
         return connection.getInputStream();
     }
     /**
@@ -139,16 +161,7 @@ public class FileUtil {
         if (newFile.exists()) {
             return ResultDTO.putSuccess("ok");
         }
-        URL url = new URL(fileURL);
-        //链接网络地址
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        if (header != null) {
-            Set<String> keys = header.keySet();
-            for (String key : keys) {
-                connection.addRequestProperty(key, header.get(key));
-            }
-        }
-        InputStream is = connection.getInputStream();
+        InputStream is = downloadFileToStream(fileURL,header);
         //获取链接的输出流
         //根据输入流写入文件
         FileOutputStream out = new FileOutputStream(newFile);
@@ -258,7 +271,8 @@ public class FileUtil {
         // 设置请求方式为"GET"
         conn.setRequestMethod("GET");
         // 超时响应时间为5秒
-        conn.setConnectTimeout(5 * 1000);
+        conn.setConnectTimeout(1000 * 60 * 60);
+        conn.setReadTimeout(1000 * 60 * 60);
         // 通过输入流获取图片数据
         return conn.getInputStream();
     }

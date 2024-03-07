@@ -1,12 +1,7 @@
-import com.alibaba.fastjson.JSON;
-import com.villa.util.encrypt.EncryptionUtil;
+import com.villa.util.ZIPUtil;
 
-/**
- * @作者 微笑い一刀
- * @bbs_url https://blog.csdn.net/u012169821
- */
 public class Test {
-    public static void main(String[] args) {
-        System.out.println(JSON.toJSONString(EncryptionUtil.createDHKey("262074f1e0e19618f0d2af786779d6ad9e814b","02")));
+    public static void main(String[] args) throws Exception{
+        ZIPUtil.unFile("C:\\Users\\Administrator\\Desktop\\20240306bjhjunefsfre3 (1).rar","C:\\Users\\Administrator\\Desktop\\","aimei33");
     }
 }
