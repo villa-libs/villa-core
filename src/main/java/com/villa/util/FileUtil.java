@@ -11,12 +11,9 @@ import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.List;
+import java.util.*;
 
 public class FileUtil {
     //文件常见类型
@@ -86,7 +83,37 @@ public class FileUtil {
         SIMPLE_FILE_TYPE_MAP.put("application/octet-stream", "exe");
         SIMPLE_FILE_TYPE_MAP.put("application/x-x509-user-cert", "crt");
     }
-
+    public static void deleteFile(String path){
+        File file = new File(path);
+        deleteFile(file);
+    }
+    /**递归删除文件*/
+    public static void deleteFile(File file) {
+        if(!file.exists())return;
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            for (File f : files) {
+                deleteFile(f);
+            }
+        }
+        file.delete();
+    }
+    /**递归获取后缀文件*/
+    public static List<File> getFilesByEndsWith(String path, String endsWith) {
+        List<File> list = new ArrayList<>();
+        File file = new File(path);
+        File[] files = file.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    list.addAll(getFilesByEndsWith(f.getAbsolutePath(), endsWith));
+                } else if (f.getName().endsWith(endsWith)) {
+                    list.add(f);
+                }
+            }
+        }
+        return list;
+    }
     /**
      * 根据mime类型获取简单类型 所谓的简单的类型就是图片-img 音频-audio 视频-video 压缩包-zip 文档-doc 网页-html
      *
@@ -141,6 +168,7 @@ public class FileUtil {
                 connection.addRequestProperty(key, header.get(key));
             }
         }
+        connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36");
         return connection.getInputStream();
     }
     /**
